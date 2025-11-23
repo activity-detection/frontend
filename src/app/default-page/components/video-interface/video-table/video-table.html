@@ -1,0 +1,16 @@
+<thead>
+    <tr>
+    <th scope="col" class="px-6 py-3 text-start text-xs font-medium text-gray-200 uppercase">Date</th>
+    <th scope="col" class="px-6 py-3 text-start text-xs font-medium text-gray-200 uppercase">Time</th>
+    <th scope="col" class="px-6 py-3 text-start text-xs font-medium text-gray-200 uppercase">Cam</th>
+    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-200 uppercase">Action</th>
+    </tr>
+</thead>
+<tbody class="divide-y divide-gray-200">
+    @for (item of items; track item.id) {
+        <tr table-row [item]="item"></tr>
+    }
+    @empty {
+        <tr></tr>
+    }
+</tbody>

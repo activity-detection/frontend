@@ -1,1 +1,28 @@
 /* You can add global styles to this file, and also import other style files */
+@import 'tailwindcss';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, app-root {
+    height: 100%;
+}
+
+body {
+    font-family: system-ui, sans-serif;
+    overflow: hidden;
+}
+
+app-video-list.no-slider .swiper,
+app-video-list.no-slider .slick-slider,
+app-video-list.no-slider .carousel {
+  display: none !important;
+}
+
+app-video-list.no-slider,
+app-video-list.no-slider * {
+  touch-action: none;
+  -ms-touch-action: none;
+  user-select: none;
+}
