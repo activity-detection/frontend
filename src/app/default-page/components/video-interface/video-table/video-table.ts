@@ -8,8 +8,8 @@ import { TableRowComponent } from "./table-row/table-row";
 })
 export class VideoTableComponent {
     @Input() data: any[] = [];
-    @Output() onTotalPagesChange = new EventEmitter<number>();
-    
+    @Output() totalPagesChange = new EventEmitter<number>();
+
     pageSizeOptions = [1, 5, 8, 10, 15];
     pageSize = 15;
     currentPage = 1;
@@ -43,7 +43,7 @@ export class VideoTableComponent {
         //this.paginated.emit(this.paginatedItems);
         //this.pageChange.emit(this.currentPage);
         //this.pageSizeChange.emit(this.pageSize);
-        this.onTotalPagesChange.emit(totalPages);
+        this.totalPagesChange.emit(totalPages);
     }
 
     @HostListener('window:resize')
