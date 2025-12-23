@@ -1,0 +1,20 @@
+:host ::ng-deep {
+	.mat-mdc-icon-button {
+		color: #fff !important;
+	}
+	.mat-mdc-icon-button.mat-mdc-icon-button-disabled {
+		color: rgba(255, 255, 255, 0.3) !important;
+	}
+}
+
+/* Bottom borders for table rows: Tailwind gray-200 (#E5E7EB) */
+:host ::ng-deep {
+	.mat-row:not(.mat-header-row) .mat-cell {
+		border-bottom: 1px solid #E5E7EB !important;
+	}
+	/* remove header bottom border to keep visual separation consistent */
+	.mat-header-row .mat-cell {
+		border-bottom: none !important;
+	}
+
+}

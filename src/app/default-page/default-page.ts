@@ -8,5 +8,5 @@ import { VideoInterfaceComponent } from "./components/video-interface/video-inte
   styleUrl: './default-page.css',
 })
 export class DefaultPage {
-  
+
 }
