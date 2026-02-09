@@ -11,4 +11,7 @@ import {ActivatedRoute} from '@angular/router';
   styleUrl: './video-page.css',
 })
 export class VideoPage{
+  onGoBack() {
+      window.location.href = 'http://localhost:4200/';
+  }
 }

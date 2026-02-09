@@ -1,1 +1,47 @@
-<app-video-player></app-video-player>
+<button type="button" (click)="onGoBack()" class="inline-flex items-center justify-center text-white rounded-full bg-gray-700/80 w-9 h-9 absolute top-2 left-2 cursor-pointer hover:bg-gray-600/80 transition ease-in duration-300">
+  <svg viewBox="0 0 24 24" class="w-8 h-8" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M11 6L5 12M5 12L11 18M5 12H19" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+</button>
+<section class="bg-gray-900 antialiased w-full h-full flex items-center">
+  <div class="max-w-screen-xl px-4 mx-auto 2xl:px-0">
+    <div class="lg:grid lg:grid-cols-2 lg:gap-8 xl:gap-16">
+      <app-video-player></app-video-player>
+
+      <div class="mt-6 sm:mt-8 lg:mt-0">
+        <h1
+          class="text-2xl font-extrabold text-gray-900 text-white"
+        >
+          Anomaly (#ID)
+        </h1>
+        <div class="mt-4 sm:items-center">
+          <p
+            class="text-xl font-semibold text-gray-900 text-white"
+          >
+            DATE:
+          </p>
+
+          <div class="flex items-center gap-2 mt-2 sm:mt-0">
+            <div class="flex items-center gap-3">
+              <p class="text-white tracking-wide font-semibold">--/--/----</p>
+              <p class="text-white tracking-wide">--/--/----</p>
+            </div> 
+          </div>
+        </div>
+
+        <div class="mt-6 sm:gap-4 sm:items-center sm:flex sm:mt-8">
+          <p class="text-white font-extrabold tracking-wider">Controls</p>
+        </div>
+
+        <hr class="my-6 md:my-8 border-gray-200 dark:border-gray-800" />
+
+        <p class="mb-6 text-gray-500 dark:text-gray-400">
+          Studio quality three mic array for crystal clear calls and voice
+          recordings. Six-speaker sound system for a remarkably robust and
+          high-quality audio experience. Up to 256GB of ultrafast SSD storage.
+        </p>
+        
+      </div>
+    </div>
+  </div>
+</section>
