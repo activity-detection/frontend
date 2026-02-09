@@ -1,0 +1,10 @@
+node_modules
+.git
+.gitignore
+frontend.Dockerfile
+frontend.dev.Dockerfile
+.editorconfig
+README.md
+*.iml
+.idea
+.angular
