@@ -6,7 +6,7 @@ import { LoadingScreen } from "@/components/loading-screen";
 import { VideoList } from "@/components/video-list";
 
 function PageContent() {
-  const { apiOk, checkApiHealth, loadVideosPage } = useVideo();
+  const { apiLoading, checkApiHealth, loadVideosPage, apiOk } = useVideo();
 
   useEffect(() => {
     const initialize = async () => {
@@ -16,8 +16,12 @@ function PageContent() {
     void initialize();
   }, [checkApiHealth, loadVideosPage]);
 
-  if (apiOk === null) {
+  if (apiLoading) {
     return <LoadingScreen />;
+  }
+
+  if (!apiOk) {
+    throw new Error("Api is not working"); 
   }
 
   return (

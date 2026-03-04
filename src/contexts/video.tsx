@@ -33,7 +33,8 @@ type VideosPage = {
 
 type VideoContextValue = {
   apiOk: boolean | null;
-  loading: boolean;
+  apiLoading: boolean;
+  videosLoading: boolean;
   error: string | null;
   videos: VideoItem[];
   pageNumber: number;
@@ -52,7 +53,8 @@ const API_BASE_URL =
 
 export function VideoProvider({ children }: { children: ReactNode }) {
   const [apiOk, setApiOk] = useState<boolean | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [apiLoading, setApiLoading] = useState(true);
+  const [videosLoading, setVideosLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [videos, setVideos] = useState<VideoItem[]>([]);
   const [pageNumber, setPageNumber] = useState(0);
@@ -61,25 +63,43 @@ export function VideoProvider({ children }: { children: ReactNode }) {
   const [totalElements, setTotalElements] = useState(0);
 
   const checkApiHealth = useCallback(async () => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/v3/api-docs`, {
-        method: "GET",
-        cache: "no-store",
-      });
-      setApiOk(response.ok);
-      if (!response.ok) {
-        setError(`API health check failed with status ${response.status}`);
+    setApiLoading(true);
+    const maxAttempts = 3;
+    let lastError: string | null = null;
+
+    for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+      try {
+        const response = await fetch(`${API_BASE_URL}/v3/api-docs`, {
+          method: "GET",
+          cache: "no-store",
+        });
+
+        if (response.ok) {
+          setApiOk(true);
+          setError(null);
+          setApiLoading(false);
+          return;
+        }
+
+        lastError = `API health check failed with status ${response.status}`;
+      } catch {
+        lastError = "Failed to connect to backend API";
       }
-    } catch {
-      setApiOk(false);
-      setError("Failed to connect to backend API");
+
+      if (attempt < maxAttempts) {
+        await new Promise((resolve) => setTimeout(resolve, attempt * 300));
+      }
     }
+
+    setApiOk(false);
+    setError(lastError ?? "Failed to connect to backend API");
+    setApiLoading(false);
   }, []);
 
   const loadVideosPage = useCallback(
     async (page: number, sort: string[] = ["uploadDate,desc"]) => {
       try {
-        setLoading(true);
+        setVideosLoading(true);
         setError(null);
 
         // Min delay to show skeleton loading state
@@ -105,7 +125,7 @@ export function VideoProvider({ children }: { children: ReactNode }) {
         setVideos([]);
         setError(err instanceof Error ? err.message : "Error loading videos");
       } finally {
-        setLoading(false);
+        setVideosLoading(false);
       }
     },
     [pageSize],
@@ -114,7 +134,8 @@ export function VideoProvider({ children }: { children: ReactNode }) {
   const value = useMemo<VideoContextValue>(
     () => ({
       apiOk,
-      loading,
+      apiLoading,
+      videosLoading,
       error,
       videos,
       pageNumber,
@@ -126,7 +147,8 @@ export function VideoProvider({ children }: { children: ReactNode }) {
     }),
     [
       apiOk,
-      loading,
+      apiLoading,
+      videosLoading,
       error,
       videos,
       pageNumber,

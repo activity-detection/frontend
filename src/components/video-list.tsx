@@ -23,7 +23,7 @@ type SortConfig = {
 
 export function VideoList() {
   const {
-    loading,
+    videosLoading,
     videos,
     pageNumber,
     totalPages,
@@ -85,7 +85,7 @@ export function VideoList() {
             </TableHeader>
             <TableBody>
               {(() => {
-                if (loading) {
+                if (videosLoading) {
                   return Array.from({ length: 10 }).map((_, index) => (
                     <TableRow
                       key={`skeleton-${index}`}
@@ -101,7 +101,7 @@ export function VideoList() {
                         <Skeleton className="h-5 w-48" />
                       </TableCell>
                       <TableCell className="p-4">
-                        <Skeleton className="h-5s w-24" />
+                        <Skeleton className="h-5 w-24" />
                       </TableCell>
                     </TableRow>
                   ));
@@ -182,7 +182,7 @@ export function VideoList() {
             <button
               type="button"
               onClick={handlePrevious}
-              disabled={loading || pageNumber === 0}
+              disabled={videosLoading || pageNumber === 0}
               className="min-h-9.5 min-w-9.5 py-2 px-2.5 inline-flex justify-center items-center gap-x-2 text-sm rounded-lg text-gray-800 dark:text-neutral-200 hover:bg-gray-100 dark:hover:bg-neutral-700 focus:outline-hidden focus:bg-gray-100 dark:focus:bg-neutral-700 disabled:opacity-50 disabled:pointer-events-none"
               aria-label="Previous"
             >
@@ -216,7 +216,7 @@ export function VideoList() {
             <button
               type="button"
               onClick={handleNext}
-              disabled={loading || pageNumber >= totalPages - 1}
+              disabled={videosLoading || pageNumber >= totalPages - 1}
               className="min-h-9.5 min-w-9.5 py-2 px-2.5 inline-flex justify-center items-center gap-x-2 text-sm rounded-lg text-gray-800 dark:text-neutral-200 hover:bg-gray-100 dark:hover:bg-neutral-700 focus:outline-hidden focus:bg-gray-100 dark:focus:bg-neutral-700 disabled:opacity-50 disabled:pointer-events-none"
               aria-label="Next"
             >
