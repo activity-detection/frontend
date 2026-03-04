@@ -1,48 +1,48 @@
-'use client';
+import { getVideos, getDetectionTemplates, type GetVideosParams } from '@/lib/api';
+import Link from 'next/link';
 
-import { useEffect, useState } from 'react';
-import { getHealth } from '@/lib/api-client';
+export default async function Home() {
+  // Fetch videos from backend - Server Component (automatic caching)
+  let videos = null;
+  let error = null;
 
-export default function Home() {
-  const [health, setHealth] = useState<any>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const checkHealth = async () => {
-      try {
-        const data = await getHealth();
-        setHealth(data);
-        setError(null);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to connect to backend');
-        setHealth(null);
-      } finally {
-        setLoading(false);
+  try {
+    const params: GetVideosParams = {
+      pageable: {
+        page: 0,
+        size: 10,
+        sort: ['uploadDate,desc']
       }
     };
-
-    checkHealth();
-  }, []);
+    
+    videos = await getVideos(params);
+  } catch (err: any) {
+    error = err?.message || 'Failed to fetch videos';
+    console.error('Error fetching videos:', err);
+  }
 
   return (
     <div style={{ padding: '20px', fontFamily: 'monospace' }}>
       <h1>Activity Detection</h1>
-      <h2>Backend Health Check</h2>
       
-      {loading && <p>Checking backend...</p>}
+      <div style={{ marginTop: '20px' }}>
+        <Link href="/api-docs" style={{ color: 'blue', textDecoration: 'underline' }}>
+          View API Documentation
+        </Link>
+      </div>
+
+      <h2 style={{ marginTop: '30px' }}>Videos</h2>
       
       {error && (
-        <div style={{ color: 'red', padding: '10px', backgroundColor: '#ffebee', borderRadius: '4px' }}>
-          <strong>Error:</strong> {error}
+        <div style={{ color: 'red', marginTop: '10px' }}>
+          Error: {error}
         </div>
       )}
-      
-      {health && (
-        <div style={{ color: 'green', padding: '10px', backgroundColor: '#e8f5e9', borderRadius: '4px' }}>
-          <strong>Connected:</strong>
-          <pre>{JSON.stringify(health, null, 2)}</pre>
-        </div>
+
+      {videos && (
+        <pre style={{ marginTop: '10px', background: '#f5f5f5', padding: '10px' }}>
+          {JSON.stringify(videos, null, 2)}
+        </pre>
       )}
     </div>
   );
