@@ -26,7 +26,7 @@ export type getDetectionTemplatesResponse =
   getDetectionTemplatesResponseSuccess;
 
 export const getGetDetectionTemplatesUrl = (
-  params: GetDetectionTemplatesParams,
+  params?: GetDetectionTemplatesParams,
 ) => {
   const normalizedParams = new URLSearchParams();
 
@@ -44,7 +44,7 @@ export const getGetDetectionTemplatesUrl = (
 };
 
 export const getDetectionTemplates = async (
-  params: GetDetectionTemplatesParams,
+  params?: GetDetectionTemplatesParams,
   options?: RequestInit,
 ): Promise<getDetectionTemplatesResponse> => {
   return client<getDetectionTemplatesResponse>(

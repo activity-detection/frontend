@@ -1,49 +1,44 @@
-import { getVideos, getDetectionTemplates, type GetVideosParams } from '@/lib/api';
-import Link from 'next/link';
+"use client";
 
-export default async function Home() {
-  // Fetch videos from backend - Server Component (automatic caching)
-  let videos = null;
-  let error = null;
+import { useEffect } from "react";
+import { VideoProvider, useVideo } from "@/contexts/video";
+import { LoadingScreen } from "@/components/loading-screen";
+import { VideoList } from "@/components/video-list";
 
-  try {
-    const params: GetVideosParams = {
-      pageable: {
-        page: 0,
-        size: 10,
-        sort: ['uploadDate,desc']
-      }
+function PageContent() {
+  const { apiOk, checkApiHealth, loadVideosPage } = useVideo();
+
+  useEffect(() => {
+    const initialize = async () => {
+      await checkApiHealth();
+      await loadVideosPage(0);
     };
-    
-    videos = await getVideos(params);
-  } catch (err: any) {
-    error = err?.message || 'Failed to fetch videos';
-    console.error('Error fetching videos:', err);
+    void initialize();
+  }, [checkApiHealth, loadVideosPage]);
+
+  if (apiOk === null) {
+    return <LoadingScreen />;
   }
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'monospace' }}>
-      <h1>Activity Detection</h1>
-      
-      <div style={{ marginTop: '20px' }}>
-        <Link href="/api-docs" style={{ color: 'blue', textDecoration: 'underline' }}>
-          View API Documentation
-        </Link>
-      </div>
-
-      <h2 style={{ marginTop: '30px' }}>Videos</h2>
-      
-      {error && (
-        <div style={{ color: 'red', marginTop: '10px' }}>
-          Error: {error}
+    <main className="min-h-screen bg-background">
+      <div className="container mx-auto py-4 px-4">
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold tracking-tight text-foreground md:block hidden">
+            CCTV Activity Detection App
+          </h1>
         </div>
-      )}
 
-      {videos && (
-        <pre style={{ marginTop: '10px', background: '#f5f5f5', padding: '10px' }}>
-          {JSON.stringify(videos, null, 2)}
-        </pre>
-      )}
-    </div>
+        <VideoList />
+      </div>
+    </main>
+  );
+}
+
+export default function Home() {
+  return (
+    <VideoProvider>
+      <PageContent />
+    </VideoProvider>
   );
 }

@@ -1,13 +1,14 @@
 export const client = async <T>(
   url: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
 ): Promise<T> => {
-  const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-  
+  const baseURL =
+    process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
+
   const response = await fetch(`${baseURL}${url}`, {
     ...options,
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       ...options.headers,
     },
   });
@@ -18,7 +19,10 @@ export const client = async <T>(
   }
 
   // Jeśli response jest pusty (204, DELETE), zwróć null
-  if (response.status === 204 || response.headers.get('content-length') === '0') {
+  if (
+    response.status === 204 ||
+    response.headers.get("content-length") === "0"
+  ) {
     return null as T;
   }
 

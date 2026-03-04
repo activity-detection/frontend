@@ -23,7 +23,6 @@ export * from "./getVideos200";
 export * from "./getVideosParams";
 export * from "./objectDetection";
 export * from "./objectDetections";
-export * from "./pageable";
 export * from "./resourceRegion";
 export * from "./uploadVideo200";
 export * from "./uploadVideoBody";
