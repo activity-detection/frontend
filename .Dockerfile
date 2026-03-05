@@ -1,6 +1,6 @@
 # syntax=docker.io/docker/dockerfile:1
 
-FROM node:20-alpine AS base
+FROM node:24-alpine AS base
 
 # Step 1. Rebuild the source code only when needed
 FROM base AS builder
@@ -8,7 +8,7 @@ FROM base AS builder
 WORKDIR /app
 
 # Install dependencies based on the preferred package manager
-COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc* ./
+COPY package.json package-lock.json ./
 # Omit --production flag for TypeScript devDependencies
 RUN npm ci
 
@@ -16,6 +16,8 @@ COPY src ./src
 COPY public ./public
 COPY next.config.ts .
 COPY tsconfig.json .
+COPY postcss.config.mjs .
+COPY types.d.ts .
 
 # Environment variables must be present at build time
 # https://github.com/vercel/next.js/discussions/14030

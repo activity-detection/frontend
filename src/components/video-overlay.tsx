@@ -48,7 +48,7 @@ export function VideoOverlay({
         URL.revokeObjectURL(videoUrl);
       }
     };
-  }, [videoId]);
+  }, [videoId, videoUrl]);
 
   if (!videoId) return null;
 

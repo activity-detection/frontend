@@ -1,5 +1,3 @@
-import { Skeleton } from "@/components/ui/skeleton";
-
 export function LoadingScreen() {
   return (
     <div className="w-full h-screen flex items-center justify-center bg-background">

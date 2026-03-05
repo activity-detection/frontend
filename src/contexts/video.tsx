@@ -10,9 +10,7 @@ import {
 } from "react";
 import {
   getVideos,
-  getVideoMedia,
 } from "@/lib/endpoints/media-controller/media-controller";
-import type { GetVideosParams } from "@/models";
 
 type VideoItem = {
   id: string;
