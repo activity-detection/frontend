@@ -4,7 +4,6 @@ import { useEffect } from "react";
 import { VideoProvider, useVideo } from "@/contexts/video";
 import { LoadingScreen } from "@/components/loading-screen";
 import { VideoList } from "@/components/video-list";
-import { ThemeProvider } from "@/components/theme-provider";
 
 function PageContent() {
   const { apiLoading, checkApiHealth, loadVideosPage, apiOk } = useVideo();
@@ -22,7 +21,7 @@ function PageContent() {
   }
 
   if (!apiOk) {
-    throw new Error("Api is not working"); 
+    throw new Error("Api is not working");
   }
 
   return (
@@ -43,9 +42,7 @@ function PageContent() {
 export default function Home() {
   return (
     <VideoProvider>
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-        <PageContent />
-      </ThemeProvider>
+      <PageContent />
     </VideoProvider>
   );
 }

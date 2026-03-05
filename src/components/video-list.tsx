@@ -10,10 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Card,
-  CardContent,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { VideoOverlay } from "./video-overlay";
 
@@ -67,7 +64,7 @@ export function VideoList() {
     return sortConfig.direction === "asc" ? " ↑" : " ↓";
   };
 
-  const selectedVideo = videos.find(v => v.id === selectedVideoId);
+  const selectedVideo = videos.find((v) => v.id === selectedVideoId);
 
   return (
     <Card className="border-border/50 shadow-sm">
@@ -96,7 +93,7 @@ export function VideoList() {
                   return Array.from({ length: totalRows }).map((_, index) => (
                     <TableRow
                       key={`skeleton-${index}`}
-                      className="border-border/50"
+                      className="border-border/50 h-14.25"
                     >
                       <TableCell className="p-4">
                         <Skeleton className="h-4 w-4 rounded-sm" />
@@ -113,11 +110,11 @@ export function VideoList() {
                     </TableRow>
                   ));
                 }
-                
+
                 if (videos.length === 0) {
                   return (
                     <>
-                      <TableRow className="hover:bg-muted/30 border-border/50 h-14">
+                      <TableRow className="hover:bg-muted/30 border-border/50 h-14.25">
                         <TableCell
                           colSpan={4}
                           className="text-center text-muted-foreground"
@@ -128,7 +125,7 @@ export function VideoList() {
                       {Array.from({ length: totalRows - 1 }).map((_, index) => (
                         <TableRow
                           key={`empty-no-data-${index}`}
-                          className="border-border/50 h-14"
+                          className="border-border/50 h-14.25"
                         >
                           <TableCell className="p-4"></TableCell>
                           <TableCell className="p-4"></TableCell>
@@ -139,9 +136,9 @@ export function VideoList() {
                     </>
                   );
                 }
-                
+
                 const emptyRowsCount = Math.max(0, totalRows - videos.length);
-                
+
                 return (
                   <>
                     {videos.map((video) => (
@@ -158,7 +155,14 @@ export function VideoList() {
                               className="peer h-6 w-6 cursor-pointer transition-all appearance-none rounded-full bg-slate-100 shadow hover:shadow-md border border-slate-300 checked:bg-red-900 checked:border-red-900 pointer-events-auto"
                             />
                             <span className="absolute text-white opacity-0 peer-checked:opacity-100 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" className="w-5.5 h-5.5" fill="currentColor"><path  d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94z"/></svg>
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 20 20"
+                                className="w-5.5 h-5.5"
+                                fill="currentColor"
+                              >
+                                <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94z" />
+                              </svg>
                             </span>
                           </label>
                         </TableCell>
@@ -185,7 +189,7 @@ export function VideoList() {
                     {Array.from({ length: emptyRowsCount }).map((_, index) => (
                       <TableRow
                         key={`empty-${index}`}
-                        className="border-border/50 h-13.25"
+                        className="border-border/50 h-14.25"
                       >
                         <TableCell className="p-4"></TableCell>
                         <TableCell className="p-4"></TableCell>

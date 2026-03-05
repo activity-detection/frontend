@@ -8,9 +8,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import {
-  getVideos,
-} from "@/lib/endpoints/media-controller/media-controller";
+import { getVideos } from "@/lib/endpoints/media-controller/media-controller";
 
 type VideoItem = {
   id: string;

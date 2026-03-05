@@ -8,14 +8,11 @@ export const client = async <T>(
   const method = options.method || "GET";
   const headers = new Headers(options.headers);
 
-  // Nie wysyłaj Content-Type dla GET/HEAD/DELETE
   if (!["GET", "HEAD", "DELETE"].includes(method)) {
     headers.set("Content-Type", "application/json");
   }
 
-  // Dla video requestów, dodaj Range header (backend tego wymaga)
-  const isVideoRequest =
-    url.includes("/videos/") && !url.includes("/info");
+  const isVideoRequest = url.includes("/videos/") && !url.includes("/info");
   if (method === "GET" && isVideoRequest && !headers.has("Range")) {
     headers.set("Range", "bytes=0-");
   }

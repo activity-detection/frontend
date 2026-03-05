@@ -2,7 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { getVideoMedia, type getVideoMediaResponse } from "@/lib/endpoints/media-controller/media-controller";
+import {
+  getVideoMedia,
+  type getVideoMediaResponse,
+} from "@/lib/endpoints/media-controller/media-controller";
 
 interface VideoOverlayProps {
   videoId: string | null;
@@ -24,31 +27,40 @@ export function VideoOverlay({
       return;
     }
 
+    let isMounted = true;
+
     const fetchVideo = async () => {
       try {
         setIsLoading(true);
         const response = await getVideoMedia(videoId);
-        
+
         const responseData = response as getVideoMediaResponse;
         const blob = responseData.data;
-        
+
         const url = URL.createObjectURL(blob);
-        setVideoUrl(url);
+        if (isMounted) {
+          setVideoUrl(url);
+        } else {
+          URL.revokeObjectURL(url);
+        }
       } catch (error) {
         console.error("Failed to load video:", error);
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
 
     void fetchVideo();
 
     return () => {
+      isMounted = false;
       if (videoUrl) {
         URL.revokeObjectURL(videoUrl);
       }
     };
-  }, [videoId, videoUrl]);
+  }, [videoId]);
 
   if (!videoId) return null;
 
@@ -61,7 +73,7 @@ export function VideoOverlay({
           </h2>
           <button
             onClick={onClose}
-            className="text-muted-foreground hover:text-foreground transition-colors"
+            className="cursor-pointer text-muted-foreground hover:text-foreground transition-colors"
             aria-label="Close"
           >
             <svg
