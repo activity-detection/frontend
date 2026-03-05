@@ -15,6 +15,7 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { VideoOverlay } from "./video-overlay";
 
 type SortConfig = {
   key: "uploadDate";
@@ -35,6 +36,8 @@ export function VideoList() {
     key: "uploadDate",
     direction: "desc",
   });
+
+  const [selectedVideoId, setSelectedVideoId] = useState<string | null>(null);
 
   const handleSort = (key: SortConfig["key"]) => {
     const newDirection =
@@ -64,6 +67,8 @@ export function VideoList() {
     return sortConfig.direction === "asc" ? " ↑" : " ↓";
   };
 
+  const selectedVideo = videos.find(v => v.id === selectedVideoId);
+
   return (
     <Card className="border-border/50 shadow-sm">
       <CardContent className="p-8 pt-0">
@@ -72,8 +77,8 @@ export function VideoList() {
           <Table>
             <TableHeader className="bg-muted/50">
               <TableRow className="hover:bg-muted/70 border-border/50">
+                <TableHead className="p-4 w-12"></TableHead>
                 <TableHead className="p-4 font-mono text-xs">ID</TableHead>
-                <TableHead className="p-4">Name</TableHead>
                 <TableHead className="p-4">Description</TableHead>
                 <TableHead
                   onClick={() => handleSort("uploadDate")}
@@ -85,17 +90,19 @@ export function VideoList() {
             </TableHeader>
             <TableBody>
               {(() => {
+                const totalRows = 10;
+
                 if (videosLoading) {
-                  return Array.from({ length: 10 }).map((_, index) => (
+                  return Array.from({ length: totalRows }).map((_, index) => (
                     <TableRow
                       key={`skeleton-${index}`}
                       className="border-border/50"
                     >
                       <TableCell className="p-4">
-                        <Skeleton className="h-5 w-20" />
+                        <Skeleton className="h-4 w-4 rounded-sm" />
                       </TableCell>
                       <TableCell className="p-4">
-                        <Skeleton className="h-5 w-32" />
+                        <Skeleton className="h-5 w-20" />
                       </TableCell>
                       <TableCell className="p-4">
                         <Skeleton className="h-5 w-48" />
@@ -109,19 +116,30 @@ export function VideoList() {
                 
                 if (videos.length === 0) {
                   return (
-                    <TableRow className="hover:bg-muted/30">
-                      <TableCell
-                        colSpan={4}
-                        className="text-center text-muted-foreground py-8"
-                      >
-                        No recordings found
-                      </TableCell>
-                    </TableRow>
+                    <>
+                      <TableRow className="hover:bg-muted/30 border-border/50 h-14">
+                        <TableCell
+                          colSpan={4}
+                          className="text-center text-muted-foreground"
+                        >
+                          No recordings found
+                        </TableCell>
+                      </TableRow>
+                      {Array.from({ length: totalRows - 1 }).map((_, index) => (
+                        <TableRow
+                          key={`empty-no-data-${index}`}
+                          className="border-border/50 h-14"
+                        >
+                          <TableCell className="p-4"></TableCell>
+                          <TableCell className="p-4"></TableCell>
+                          <TableCell className="p-4"></TableCell>
+                          <TableCell className="p-4"></TableCell>
+                        </TableRow>
+                      ))}
+                    </>
                   );
                 }
                 
-                // Render actual videos + empty placeholder rows to maintain 10 rows total
-                const totalRows = 10;
                 const emptyRowsCount = Math.max(0, totalRows - videos.length);
                 
                 return (
@@ -129,13 +147,23 @@ export function VideoList() {
                     {videos.map((video) => (
                       <TableRow
                         key={video.id}
-                        className="hover:bg-muted/20 border-border/50"
+                        className="hover:bg-muted/20 border-border/50 cursor-pointer"
+                        onClick={() => setSelectedVideoId(video.id)}
                       >
+                        <TableCell className="p-4">
+                          <label className="flex items-center cursor-pointer relative pointer-events-none">
+                            <input
+                              type="checkbox"
+                              onClick={(e) => e.stopPropagation()}
+                              className="peer h-6 w-6 cursor-pointer transition-all appearance-none rounded-full bg-slate-100 shadow hover:shadow-md border border-slate-300 checked:bg-red-900 checked:border-red-900 pointer-events-auto"
+                            />
+                            <span className="absolute text-white opacity-0 peer-checked:opacity-100 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" className="w-5.5 h-5.5" fill="currentColor"><path  d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94z"/></svg>
+                            </span>
+                          </label>
+                        </TableCell>
                         <TableCell className="font-mono text-xs p-4 truncate max-w-40">
                           {video.id.slice(0, 8)}...
-                        </TableCell>
-                        <TableCell className="font-medium p-4 truncate">
-                          {video.name}
                         </TableCell>
                         <TableCell className="text-sm text-muted-foreground p-4 truncate max-w-xs">
                           {video.description || "—"}
@@ -157,12 +185,12 @@ export function VideoList() {
                     {Array.from({ length: emptyRowsCount }).map((_, index) => (
                       <TableRow
                         key={`empty-${index}`}
-                        className="border-border/50"
+                        className="border-border/50 h-13.25"
                       >
-                        <TableCell className="p-4">&nbsp;</TableCell>
-                        <TableCell className="p-4">&nbsp;</TableCell>
-                        <TableCell className="p-4">&nbsp;</TableCell>
-                        <TableCell className="p-4">&nbsp;</TableCell>
+                        <TableCell className="p-4"></TableCell>
+                        <TableCell className="p-4"></TableCell>
+                        <TableCell className="p-4"></TableCell>
+                        <TableCell className="p-4"></TableCell>
                       </TableRow>
                     ))}
                   </>
@@ -183,7 +211,7 @@ export function VideoList() {
               type="button"
               onClick={handlePrevious}
               disabled={videosLoading || pageNumber === 0}
-              className="min-h-9.5 min-w-9.5 py-2 px-2.5 inline-flex justify-center items-center gap-x-2 text-sm rounded-lg text-gray-800 dark:text-neutral-200 hover:bg-gray-100 dark:hover:bg-neutral-700 focus:outline-hidden focus:bg-gray-100 dark:focus:bg-neutral-700 disabled:opacity-50 disabled:pointer-events-none"
+              className="cursor-pointer min-h-9.5 min-w-9.5 py-2 px-2.5 inline-flex justify-center items-center gap-x-2 text-sm rounded-lg text-gray-800 dark:text-neutral-200 hover:bg-gray-100 dark:hover:bg-neutral-700 focus:outline-hidden focus:bg-gray-100 dark:focus:bg-neutral-700 disabled:opacity-50 disabled:pointer-events-none"
               aria-label="Previous"
             >
               <svg
@@ -217,7 +245,7 @@ export function VideoList() {
               type="button"
               onClick={handleNext}
               disabled={videosLoading || pageNumber >= totalPages - 1}
-              className="min-h-9.5 min-w-9.5 py-2 px-2.5 inline-flex justify-center items-center gap-x-2 text-sm rounded-lg text-gray-800 dark:text-neutral-200 hover:bg-gray-100 dark:hover:bg-neutral-700 focus:outline-hidden focus:bg-gray-100 dark:focus:bg-neutral-700 disabled:opacity-50 disabled:pointer-events-none"
+              className="cursor-pointer min-h-9.5 min-w-9.5 py-2 px-2.5 inline-flex justify-center items-center gap-x-2 text-sm rounded-lg text-gray-800 dark:text-neutral-200 hover:bg-gray-100 dark:hover:bg-neutral-700 focus:outline-hidden focus:bg-gray-100 dark:focus:bg-neutral-700 disabled:opacity-50 disabled:pointer-events-none"
               aria-label="Next"
             >
               <span className="sr-only">Next</span>
@@ -239,6 +267,12 @@ export function VideoList() {
           </nav>
         </div>
       </CardContent>
+
+      <VideoOverlay
+        videoId={selectedVideoId}
+        videoName={selectedVideo?.name}
+        onClose={() => setSelectedVideoId(null)}
+      />
     </Card>
   );
 }
