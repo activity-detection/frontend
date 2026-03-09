@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useVideo } from "@/contexts/video";
+import { cn } from "@/lib/utils";
 import {
   Table,
   TableBody,
@@ -12,7 +13,8 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { VideoOverlay } from "./video-overlay";
+import { VideoPlayer } from "./video-player";
+import { DeleteVideosComponent } from "./delete-videos-window";
 
 type SortConfig = {
   key: "uploadDate";
@@ -35,6 +37,11 @@ export function VideoList() {
   });
 
   const [selectedVideoId, setSelectedVideoId] = useState<string | null>(null);
+  const [selectedVideoIds, setSelectedVideoIds] = useState<Set<string>>(
+    () => new Set(),
+  );
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const selectAllRef = useRef<HTMLInputElement | null>(null);
 
   const handleSort = (key: SortConfig["key"]) => {
     const newDirection =
@@ -65,10 +72,126 @@ export function VideoList() {
   };
 
   const selectedVideo = videos.find((v) => v.id === selectedVideoId);
+  const currentPageVideoIds = useMemo(() => videos.map((video) => video.id), [videos]);
+  const selectedOnCurrentPageCount = useMemo(
+    () =>
+      currentPageVideoIds.reduce(
+        (count, id) => (selectedVideoIds.has(id) ? count + 1 : count),
+        0,
+      ),
+    [currentPageVideoIds, selectedVideoIds],
+  );
+  const allOnCurrentPageSelected =
+    currentPageVideoIds.length > 0 &&
+    selectedOnCurrentPageCount === currentPageVideoIds.length;
+  const someOnCurrentPageSelected =
+    selectedOnCurrentPageCount > 0 && !allOnCurrentPageSelected;
+  const selectAllAriaChecked: "true" | "false" | "mixed" =
+    someOnCurrentPageSelected
+      ? "mixed"
+      : allOnCurrentPageSelected
+        ? "true"
+        : "false";
+  const selectAllAriaLabel = allOnCurrentPageSelected
+    ? "Deselect all videos on current page"
+    : someOnCurrentPageSelected
+      ? "Select all videos on current page, currently partially selected"
+      : "Select all videos on current page";
+  const anyVideoSelected = selectedVideoIds.size > 0;
+
+  useEffect(() => {
+    if (!selectedVideoId) {
+      return;
+    }
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setSelectedVideoId(null);
+      }
+    };
+
+    window.addEventListener("keydown", handleEscape);
+    return () => {
+      window.removeEventListener("keydown", handleEscape);
+    };
+  }, [selectedVideoId]);
+
+  useEffect(() => {
+    if (selectAllRef.current) {
+      selectAllRef.current.indeterminate = someOnCurrentPageSelected;
+    }
+  }, [someOnCurrentPageSelected]);
+
+  const toggleVideoSelection = (videoId: string) => {
+    setSelectedVideoIds((previous) => {
+      const next = new Set(previous);
+      if (next.has(videoId)) {
+        next.delete(videoId);
+      } else {
+        next.add(videoId);
+      }
+      return next;
+    });
+  };
+
+  const toggleSelectAllCurrentPage = () => {
+    setSelectedVideoIds((previous) => {
+      const next = new Set(previous);
+      const pageFullySelected = currentPageVideoIds.every((id) => next.has(id));
+
+      currentPageVideoIds.forEach((id) => {
+        if (pageFullySelected) {
+          next.delete(id);
+        } else {
+          next.add(id);
+        }
+      });
+
+      return next;
+    });
+  };
+
+  const handleOpenDeleteModal = () => {
+    if (!anyVideoSelected) {
+      return;
+    }
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    setSelectedVideoIds(new Set());
+    setIsDeleteModalOpen(false);
+  };
+
+  const selectedVideoUploadDate = selectedVideo?.upload_date
+    ? new Date(selectedVideo.upload_date).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      })
+    : undefined;
 
   return (
-    <Card className="border-border/50 shadow-sm">
-      <CardContent className="p-8 pt-0">
+    <div className="flex flex-col gap-4 lg:flex-row">
+      {selectedVideoId ? (
+        <div className="lg:w-[42%] xl:w-[38%]">
+          <VideoPlayer
+            videoId={selectedVideoId}
+            videoName={selectedVideo?.name}
+            videoDescription={selectedVideo?.description}
+            uploadDate={selectedVideoUploadDate}
+            onClose={() => setSelectedVideoId(null)}
+          />
+        </div>
+      ) : null}
+
+      <Card
+        className={cn(
+          "border-border/50 shadow-sm transition-all duration-300",
+          selectedVideoId ? "lg:w-[58%] xl:w-[62%]" : "w-full lg:ml-auto",
+        )}
+      >
+        <CardContent className="p-8 pt-0">
         <div className="mb-4 flex items-center justify-between gap-4">
           <div className="flex flex-wrap items-center gap-2">
             <button
@@ -125,7 +248,14 @@ export function VideoList() {
           <div className="flex gap-2">
             <button
             type="button"
-            className="inline-flex h-10 items-center rounded-lg border border-border bg-red-900/50 hover:bg-red-900/70 ease-in duration-200 px-4 text-sm text-muted-foreground gap-1 cursor-pointer"
+            onClick={handleOpenDeleteModal}
+            disabled={!anyVideoSelected}
+            className={cn(
+              "inline-flex h-10 items-center rounded-lg border ease-in duration-200 px-4 text-sm gap-1 cursor-pointer transition-colors",
+              anyVideoSelected
+                ? "bg-red-900/70 text-foreground hover:bg-red-900/90"
+                : "border-border bg-red-900/50 text-muted-foreground disabled:opacity-70 disabled:cursor-not-allowed",
+            )}
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path fill="none" d="m14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21q.512.078 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48 48 0 0 0-3.478-.397m-12 .562q.51-.088 1.022-.165m0 0a48 48 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a52 52 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a49 49 0 0 0-7.5 0"/></svg>
             Delete video
@@ -146,7 +276,41 @@ export function VideoList() {
           <Table>
             <TableHeader className="bg-muted/50">
               <TableRow className="hover:bg-muted/70 border-border/50">
-                <TableHead className="p-4 w-12"></TableHead>
+                <TableHead className="p-4 w-12">
+                  <label className="flex items-center justify-center cursor-pointer relative">
+                    <input
+                      ref={selectAllRef}
+                      type="checkbox"
+                      checked={allOnCurrentPageSelected}
+                      onChange={() => toggleSelectAllCurrentPage()}
+                      onClick={(e) => e.stopPropagation()}
+                      className="peer h-6 w-6 cursor-pointer transition-all appearance-none rounded bg-muted-100 shadow hover:shadow-md border border-muted-300 checked:bg-red-900 checked:border-red-900 indeterminate:bg-red-900 indeterminate:border-red-900"
+                      aria-checked={selectAllAriaChecked}
+                      aria-label={selectAllAriaLabel}
+                    />
+                    <span className="absolute text-white opacity-0 peer-checked:opacity-100 peer-indeterminate:opacity-100 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                      {someOnCurrentPageSelected ? (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 20 20"
+                          className="w-5 h-5"
+                          fill="currentColor"
+                        >
+                          <path d="M5.75 9.25a.75.75 0 0 0 0 1.5h8.5a.75.75 0 0 0 0-1.5z" />
+                        </svg>
+                      ) : (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 20 20"
+                          className="w-6 h-6"
+                          fill="currentColor"
+                        >
+                          <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94z" />
+                        </svg>
+                      )}
+                    </span>
+                  </label>
+                </TableHead>
                 <TableHead className="p-4 font-mono text-xs font-bold">ID</TableHead>
                 <TableHead className="p-4 font-bold">Description</TableHead>
                 <TableHead
@@ -216,13 +380,18 @@ export function VideoList() {
                     {videos.map((video) => (
                       <TableRow
                         key={video.id}
-                        className="hover:bg-muted/20 border-border/50 cursor-pointer"
+                        className={cn(
+                          "hover:bg-muted/20 border-border/50 cursor-pointer",
+                          selectedVideoId === video.id ? "bg-muted/30" : "",
+                        )}
                         onClick={() => setSelectedVideoId(video.id)}
                       >
                         <TableCell className="p-4">
-                          <label className="flex items-center cursor-pointer relative pointer-events-none">
+                          <label className="flex items-center cursor-pointer relative">
                             <input
                               type="checkbox"
+                              checked={selectedVideoIds.has(video.id)}
+                              onChange={() => toggleVideoSelection(video.id)}
                               onClick={(e) => e.stopPropagation()}
                               className="peer h-6 w-6 cursor-pointer transition-all appearance-none rounded bg-muted-100 shadow hover:shadow-md border border-muted-300 checked:bg-red-900 checked:border-red-900 pointer-events-auto"
                             />
@@ -342,13 +511,15 @@ export function VideoList() {
             </button>
           </nav>
         </div>
-      </CardContent>
+        </CardContent>
+      </Card>
 
-      <VideoOverlay
-        videoId={selectedVideoId}
-        videoName={selectedVideo?.name}
-        onClose={() => setSelectedVideoId(null)}
+      <DeleteVideosComponent
+        open={isDeleteModalOpen}
+        selectedCount={selectedVideoIds.size}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleConfirmDelete}
       />
-    </Card>
+    </div>
   );
 }
