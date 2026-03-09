@@ -69,17 +69,89 @@ export function VideoList() {
   return (
     <Card className="border-border/50 shadow-sm">
       <CardContent className="p-8 pt-0">
+        <div className="mb-4 flex items-center justify-between gap-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              className="inline-flex h-10 items-center gap-2 rounded-lg border border-border bg-muted px-4 text-sm text-muted-foreground"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="opacity-80"
+              >
+                <path d="M8 2v4" />
+                <path d="M16 2v4" />
+                <rect width="18" height="18" x="3" y="4" rx="2" />
+                <path d="M3 10h18" />
+              </svg>
+              Select start date
+            </button>
+
+            <span className="px-1 text-sm text-muted-foreground">to</span>
+
+            <button
+              type="button"
+              className="inline-flex h-10 items-center gap-2 rounded-lg border border-border bg-muted px-4 text-sm text-muted-foreground"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="opacity-80"
+              >
+                <path d="M8 2v4" />
+                <path d="M16 2v4" />
+                <rect width="18" height="18" x="3" y="4" rx="2" />
+                <path d="M3 10h18" />
+              </svg>
+              Select end date
+            </button>
+          </div>
+
+          <div className="flex gap-2">
+            <button
+            type="button"
+            className="inline-flex h-10 items-center rounded-lg border border-border bg-red-900/50 hover:bg-red-900/70 ease-in duration-200 px-4 text-sm text-muted-foreground gap-1 cursor-pointer"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path fill="none" d="m14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21q.512.078 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48 48 0 0 0-3.478-.397m-12 .562q.51-.088 1.022-.165m0 0a48 48 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a52 52 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a49 49 0 0 0-7.5 0"/></svg>
+            Delete video
+          </button>
+        
+          <button
+            type="button"
+            className="inline-flex h-10 items-center rounded-lg border border-border bg-muted px-4 text-sm text-muted-foreground gap-1 cursor-pointer"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93c.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 0 1 1.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204s.505.71.93.78l.893.15c.543.09.94.559.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.894.149c-.424.07-.764.383-.929.78c-.165.398-.143.854.107 1.204l.527.738c.32.447.269 1.06-.12 1.45l-.774.773a1.125 1.125 0 0 1-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107c-.398.165-.71.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93c-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.269-1.45-.12l-.773-.774a1.125 1.125 0 0 1-.12-1.45l.527-.737c.25-.35.272-.806.108-1.204s-.506-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78c.165-.398.143-.854-.108-1.204l-.526-.738a1.125 1.125 0 0 1 .12-1.45l.773-.773a1.125 1.125 0 0 1 1.45-.12l.737.527c.35.25.807.272 1.204.107s.71-.505.78-.929z"/><path d="M15 12a3 3 0 1 1-6 0a3 3 0 0 1 6 0"/></svg>
+            Settings
+          </button>
+          </div>
+        </div>
+
         {/* Table */}
         <div className="rounded-lg border border-border/50 overflow-hidden">
           <Table>
             <TableHeader className="bg-muted/50">
               <TableRow className="hover:bg-muted/70 border-border/50">
                 <TableHead className="p-4 w-12"></TableHead>
-                <TableHead className="p-4 font-mono text-xs">ID</TableHead>
-                <TableHead className="p-4">Description</TableHead>
+                <TableHead className="p-4 font-mono text-xs font-bold">ID</TableHead>
+                <TableHead className="p-4 font-bold">Description</TableHead>
                 <TableHead
                   onClick={() => handleSort("uploadDate")}
-                  className="cursor-pointer hover:bg-muted/90 p-4"
+                  className="cursor-pointer hover:bg-muted/90 p-4 font-bold"
                 >
                   Uploaded{renderSortIcon("uploadDate")}
                 </TableHead>
@@ -152,13 +224,13 @@ export function VideoList() {
                             <input
                               type="checkbox"
                               onClick={(e) => e.stopPropagation()}
-                              className="peer h-6 w-6 cursor-pointer transition-all appearance-none rounded-full bg-slate-100 shadow hover:shadow-md border border-slate-300 checked:bg-red-900 checked:border-red-900 pointer-events-auto"
+                              className="peer h-6 w-6 cursor-pointer transition-all appearance-none rounded bg-muted-100 shadow hover:shadow-md border border-muted-300 checked:bg-red-900 checked:border-red-900 pointer-events-auto"
                             />
                             <span className="absolute text-white opacity-0 peer-checked:opacity-100 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 viewBox="0 0 20 20"
-                                className="w-5.5 h-5.5"
+                                className="w-6 h-6"
                                 fill="currentColor"
                               >
                                 <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94z" />
