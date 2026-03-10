@@ -20,12 +20,6 @@ export function DeleteVideosComponent({
 
   useEffect(() => {
     if (!open) {
-      setConfirmationText("");
-    }
-  }, [open]);
-
-  useEffect(() => {
-    if (!open) {
       return;
     }
 
@@ -59,10 +53,15 @@ export function DeleteVideosComponent({
               Confirmation
             </h2>
             <p className="text-sm text-muted-foreground">
-              Are you sure you want to delete the ({selectedCount}) selected videos?
+              Are you sure you want to delete the ({selectedCount}) selected
+              videos?
             </p>
             <p className="text-sm text-muted-foreground">
-              Type <span className="font-semibold text-foreground">"DELETE"</span> to confirm the deletion:
+              Type{" "}
+              <span className="font-semibold text-foreground">
+                &quot;DELETE&quot;
+              </span>{" "}
+              to confirm the deletion:
             </p>
           </div>
 
