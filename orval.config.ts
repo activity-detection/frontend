@@ -4,6 +4,9 @@ export default defineConfig({
   activityDetectorApi: {
     input: {
       target: "http://localhost:8080/v3/api-docs",
+      override: {
+        transformer: "./orval.transformer.ts",
+      },
     },
     output: {
       mode: "tags-split",

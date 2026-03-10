@@ -102,7 +102,6 @@ export function VideoProvider({ children }: { children: ReactNode }) {
         setVideosLoading(true);
         setError(null);
 
-        // Min delay to show skeleton loading state
         const [response] = await Promise.all([
           getVideos({
             page,

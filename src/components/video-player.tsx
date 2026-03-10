@@ -3,8 +3,10 @@
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
+import type { Details } from "@/models";
 import {
   getVideoMedia,
+  getVideoInfo,
   type getVideoMediaResponse,
 } from "@/lib/endpoints/media-controller/media-controller";
 
@@ -17,6 +19,14 @@ interface VideoPlayerProps {
   onClose: () => void;
 }
 
+function formatTimestampRange(from?: string, to?: string) {
+  if (!from && !to) {
+    return "—";
+  }
+
+  return `${from || "—"} -> ${to || "—"}`;
+}
+
 export function VideoPlayer({
   videoId,
   videoName,
@@ -27,6 +37,8 @@ export function VideoPlayer({
 }: VideoPlayerProps) {
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [videoDetails, setVideoDetails] = useState<Details | null>(null);
+  const [detailsLoading, setDetailsLoading] = useState(false);
 
   useEffect(() => {
     if (!videoId) {
@@ -79,6 +91,43 @@ export function VideoPlayer({
       if (objectUrl) {
         URL.revokeObjectURL(objectUrl);
       }
+    };
+  }, [videoId]);
+
+  useEffect(() => {
+    if (!videoId) {
+      setVideoDetails(null);
+      return;
+    }
+
+    let isMounted = true;
+
+    const fetchVideoDetails = async () => {
+      try {
+        setDetailsLoading(true);
+        const response = await getVideoInfo(videoId);
+
+        if (!isMounted) {
+          return;
+        }
+
+        setVideoDetails((response as unknown as Details) ?? null);
+      } catch (error) {
+        console.error("Failed to load video details:", error);
+        if (isMounted) {
+          setVideoDetails(null);
+        }
+      } finally {
+        if (isMounted) {
+          setDetailsLoading(false);
+        }
+      }
+    };
+
+    void fetchVideoDetails();
+
+    return () => {
+      isMounted = false;
     };
   }, [videoId]);
 
@@ -137,6 +186,63 @@ export function VideoPlayer({
           <p className="text-muted-foreground wrap-break-word">
             {videoDescription || "No description"}
           </p>
+
+          <h3 className="font-semibold text-foreground">Events</h3>
+          {detailsLoading ? (
+            <p className="text-muted-foreground">Loading details...</p>
+          ) : videoDetails?.events?.length ? (
+            <div className="space-y-2">
+              {videoDetails.events.map((event, index) => (
+                <div
+                  key={`event-${event.label}-${event.timestamp?.from ?? ""}-${index}`}
+                  className="rounded-md border border-border/50 bg-muted/30 p-3"
+                >
+                  <div className="text-xs text-foreground">
+                    Label: {event.label}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    Timestamp:{" "}
+                    {formatTimestampRange(
+                      event.timestamp?.from,
+                      event.timestamp?.to,
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-muted-foreground">No events</p>
+          )}
+
+          <h3 className="font-semibold text-foreground">Detections</h3>
+          {detailsLoading ? (
+            <p className="text-muted-foreground">Loading details...</p>
+          ) : videoDetails?.detections?.length ? (
+            <div className="space-y-2">
+              {videoDetails.detections.map((detection, index) => (
+                <div
+                  key={`detection-${detection.timestamp?.from ?? ""}-${index}`}
+                  className="rounded-md border border-border/50 bg-muted/30 p-3"
+                >
+                  <div className="text-xs text-muted-foreground">
+                    Timestamp:{" "}
+                    {formatTimestampRange(
+                      detection.timestamp?.from,
+                      detection.timestamp?.to,
+                    )}
+                  </div>
+                  <div className="mt-1 text-xs text-foreground wrap-break-word">
+                    Objects:{" "}
+                    {detection.objects
+                      .map((object) => `${object.name} (${object.count ?? 1})`)
+                      .join(", ") || "—"}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-muted-foreground">No detections</p>
+          )}
 
           <div className="pt-2 text-xs text-muted-foreground">
             Uploaded: {uploadDate || "—"}
