@@ -33,6 +33,23 @@ type SortConfig = {
   direction: "asc" | "desc";
 };
 
+type SelectedVideoDetails = {
+  id: string;
+  name: string;
+  description?: string;
+  uploadDate?: string;
+};
+
+function formatUploadDate(uploadDate?: string) {
+  return uploadDate
+    ? new Date(uploadDate).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      })
+    : undefined;
+}
+
 export function VideoList() {
   const {
     videosLoading,
@@ -50,6 +67,8 @@ export function VideoList() {
   });
 
   const [selectedVideoId, setSelectedVideoId] = useState<string | null>(null);
+  const [selectedVideoDetails, setSelectedVideoDetails] =
+    useState<SelectedVideoDetails | null>(null);
   const [selectedVideoIds, setSelectedVideoIds] = useState<Set<string>>(
     () => new Set(),
   );
@@ -85,7 +104,6 @@ export function VideoList() {
     return sortConfig.direction === "asc" ? " ↑" : " ↓";
   };
 
-  const selectedVideo = videos.find((v) => v.id === selectedVideoId);
   const currentPageVideoIds = useMemo(
     () => videos.map((video) => video.id),
     [videos],
@@ -124,6 +142,7 @@ export function VideoList() {
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setSelectedVideoId(null);
+        setSelectedVideoDetails(null);
       }
     };
 
@@ -180,26 +199,25 @@ export function VideoList() {
     setSelectedVideoIds(new Set());
     setIsDeleteModalOpen(false);
     setSelectedVideoId(null);
+    setSelectedVideoDetails(null);
   };
 
   const handleRowClick = (
     event: MouseEvent<HTMLTableRowElement>,
-    videoId: string,
+    video: (typeof videos)[number],
   ) => {
     const target = event.target as HTMLElement;
     if (target.closest('[data-checkbox-cell="true"]')) {
       return;
     }
-    setSelectedVideoId(videoId);
+    setSelectedVideoId(video.id);
+    setSelectedVideoDetails({
+      id: video.id,
+      name: video.name,
+      description: video.description,
+      uploadDate: formatUploadDate(video.upload_date),
+    });
   };
-
-  const selectedVideoUploadDate = selectedVideo?.upload_date
-    ? new Date(selectedVideo.upload_date).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      })
-    : undefined;
 
   return (
     <div className="flex flex-col gap-4 lg:flex-row">
@@ -207,10 +225,13 @@ export function VideoList() {
         <div className="lg:w-[42%] xl:w-[38%]">
           <VideoPlayer
             videoId={selectedVideoId}
-            videoName={selectedVideo?.name}
-            videoDescription={selectedVideo?.description}
-            uploadDate={selectedVideoUploadDate}
-            onClose={() => setSelectedVideoId(null)}
+            videoName={selectedVideoDetails?.name}
+            videoDescription={selectedVideoDetails?.description}
+            uploadDate={selectedVideoDetails?.uploadDate}
+            onClose={() => {
+              setSelectedVideoId(null);
+              setSelectedVideoDetails(null);
+            }}
           />
         </div>
       ) : null}
@@ -447,7 +468,7 @@ export function VideoList() {
                             "hover:bg-muted/20 border-border/50 cursor-pointer",
                             selectedVideoId === video.id ? "bg-muted/30" : "",
                           )}
-                          onClick={(event) => handleRowClick(event, video.id)}
+                          onClick={(event) => handleRowClick(event, video)}
                         >
                           <TableCell className="p-4" data-checkbox-cell="true">
                             <label className="flex items-center cursor-pointer relative">
