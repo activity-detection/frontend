@@ -5,4 +5,4 @@
  * OpenAPI spec version: v0
  */
 
-export type UploadVideo200 = { [key: string]: unknown };
+export type DeleteVideo200 = { [key: string]: unknown };

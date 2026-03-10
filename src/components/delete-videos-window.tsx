@@ -80,7 +80,7 @@ export function DeleteVideosComponent({
               onClick={onClose}
               className="inline-flex h-10 items-center rounded-lg border border-border bg-muted px-4 text-sm text-muted-foreground hover:bg-muted/80 cursor-pointer"
             >
-              Nie
+              No
             </button>
             <button
               type="button"
@@ -88,7 +88,7 @@ export function DeleteVideosComponent({
               onClick={onConfirm}
               className="inline-flex h-10 items-center rounded-lg border bg-red-900/70 px-4 text-sm text-foreground hover:bg-red-900/80 disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
             >
-              Tak
+              Yes
             </button>
           </div>
         </CardContent>

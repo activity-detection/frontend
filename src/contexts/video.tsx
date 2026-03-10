@@ -8,7 +8,10 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { getVideos } from "@/lib/endpoints/media-controller/media-controller";
+import {
+  deleteVideo,
+  getVideos,
+} from "@/lib/endpoints/media-controller/media-controller";
 
 type VideoItem = {
   id: string;
@@ -39,6 +42,7 @@ type VideoContextValue = {
   totalElements: number;
   checkApiHealth: () => Promise<void>;
   loadVideosPage: (page: number, sort?: string[]) => Promise<void>;
+  deleteVideos: (set: Set<string>) => Promise<void>;
 };
 
 const VideoContext = createContext<VideoContextValue | undefined>(undefined);
@@ -127,6 +131,28 @@ export function VideoProvider({ children }: { children: ReactNode }) {
     [pageSize],
   );
 
+  const deleteVideos = useCallback(
+    async (set: Set<string>) => {
+      const ids = Array.from(set);
+      if (ids.length === 0) {
+        return;
+      }
+
+      try {
+        setVideosLoading(true);
+        setError(null);
+
+        await Promise.all(ids.map((id) => deleteVideo(id)));
+        await loadVideosPage(pageNumber);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Error deleting videos");
+      } finally {
+        setVideosLoading(false);
+      }
+    },
+    [loadVideosPage, pageNumber],
+  );
+
   const value = useMemo<VideoContextValue>(
     () => ({
       apiOk,
@@ -140,6 +166,7 @@ export function VideoProvider({ children }: { children: ReactNode }) {
       totalElements,
       checkApiHealth,
       loadVideosPage,
+      deleteVideos,
     }),
     [
       apiOk,
@@ -153,6 +180,7 @@ export function VideoProvider({ children }: { children: ReactNode }) {
       totalElements,
       checkApiHealth,
       loadVideosPage,
+      deleteVideos,
     ],
   );
 

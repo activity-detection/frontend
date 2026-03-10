@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
 import dynamic from "next/dynamic";
 import { useVideo } from "@/contexts/video";
 import { cn } from "@/lib/utils";
@@ -40,6 +40,7 @@ export function VideoList() {
     totalPages,
     totalElements,
     loadVideosPage,
+    deleteVideos,
   } = useVideo();
 
   const [sortConfig, setSortConfig] = useState<SortConfig>({
@@ -172,9 +173,22 @@ export function VideoList() {
     setIsDeleteModalOpen(true);
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
+    await deleteVideos(selectedVideoIds);
     setSelectedVideoIds(new Set());
     setIsDeleteModalOpen(false);
+    setSelectedVideoId(null);
+  };
+
+  const handleRowClick = (
+    event: MouseEvent<HTMLTableRowElement>,
+    videoId: string,
+  ) => {
+    const target = event.target as HTMLElement;
+    if (target.closest('[data-checkbox-cell="true"]')) {
+      return;
+    }
+    setSelectedVideoId(videoId);
   };
 
   const selectedVideoUploadDate = selectedVideo?.upload_date
@@ -318,7 +332,7 @@ export function VideoList() {
             <Table>
               <TableHeader className="bg-muted/50">
                 <TableRow className="hover:bg-muted/70 border-border/50">
-                  <TableHead className="p-4 w-12">
+                  <TableHead className="p-4 w-12" data-checkbox-cell="true">
                     <label className="flex items-center justify-center cursor-pointer relative">
                       <input
                         ref={selectAllRef}
@@ -430,9 +444,9 @@ export function VideoList() {
                             "hover:bg-muted/20 border-border/50 cursor-pointer",
                             selectedVideoId === video.id ? "bg-muted/30" : "",
                           )}
-                          onClick={() => setSelectedVideoId(video.id)}
+                          onClick={(event) => handleRowClick(event, video.id)}
                         >
-                          <TableCell className="p-4">
+                          <TableCell className="p-4" data-checkbox-cell="true">
                             <label className="flex items-center cursor-pointer relative">
                               <input
                                 type="checkbox"
