@@ -15,6 +15,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { VideoPlayer } from "./video-player";
+import SettingsWindow from "./settings-window";
 
 const DeleteVideosComponent = dynamic(
   () =>
@@ -53,6 +54,7 @@ export function VideoList() {
     () => new Set(),
   );
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const selectAllRef = useRef<HTMLInputElement | null>(null);
 
   const handleSort = (key: SortConfig["key"]) => {
@@ -226,7 +228,7 @@ export function VideoList() {
             <div className="flex flex-wrap items-center gap-2">
               <button
                 type="button"
-                className="inline-flex h-10 items-center gap-2 rounded-lg border border-border bg-muted px-4 text-sm text-muted-foreground"
+                className="inline-flex h-10 items-center gap-2 rounded-lg border border-border bg-muted/70 hover:bg-muted px-4 text-sm text-muted-foreground cursor-not-allowed"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -252,7 +254,7 @@ export function VideoList() {
 
               <button
                 type="button"
-                className="inline-flex h-10 items-center gap-2 rounded-lg border border-border bg-muted px-4 text-sm text-muted-foreground"
+                className="inline-flex h-10 items-center gap-2 rounded-lg border border-border bg-muted/70 hover:bg-muted px-4 text-sm text-muted-foreground cursor-not-allowed"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -307,6 +309,7 @@ export function VideoList() {
 
               <button
                 type="button"
+                onClick={() => setIsSettingsOpen(true)}
                 className="inline-flex h-10 items-center rounded-lg border border-border bg-muted px-4 text-sm text-muted-foreground gap-1 cursor-pointer"
               >
                 <svg
@@ -584,6 +587,11 @@ export function VideoList() {
           onConfirm={handleConfirmDelete}
         />
       ) : null}
+
+      <SettingsWindow
+        open={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+      />
     </div>
   );
 }

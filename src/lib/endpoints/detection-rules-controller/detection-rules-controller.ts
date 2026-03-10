@@ -111,6 +111,30 @@ export const addDetectionTemplate = async (
   });
 };
 
+export type getDetectedElementsResponse200 = {
+  data: Blob;
+  status: 200;
+};
+
+export type getDetectedElementsResponseSuccess =
+  getDetectedElementsResponse200 & {
+    headers: Headers;
+  };
+export type getDetectedElementsResponse = getDetectedElementsResponseSuccess;
+
+export const getGetDetectedElementsUrl = () => {
+  return `/rules/elements`;
+};
+
+export const getDetectedElements = async (
+  options?: RequestInit,
+): Promise<getDetectedElementsResponse> => {
+  return client<getDetectedElementsResponse>(getGetDetectedElementsUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
 export type deleteDetectionTemplateResponse200 = {
   data: Blob;
   status: 200;

@@ -18,6 +18,16 @@ export function DeleteVideosComponent({
 }: DeleteVideosComponentProps) {
   const [confirmationText, setConfirmationText] = useState("");
 
+  const handleClose = () => {
+    setConfirmationText("");
+    onClose();
+  };
+
+  const handleConfirm = () => {
+    setConfirmationText("");
+    onConfirm();
+  };
+
   useEffect(() => {
     if (!open) {
       return;
@@ -25,6 +35,7 @@ export function DeleteVideosComponent({
 
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
+        setConfirmationText("");
         onClose();
       }
     };
@@ -77,7 +88,7 @@ export function DeleteVideosComponent({
           <div className="flex items-center justify-end gap-2">
             <button
               type="button"
-              onClick={onClose}
+              onClick={handleClose}
               className="inline-flex h-10 items-center rounded-lg border border-border bg-muted px-4 text-sm text-muted-foreground hover:bg-muted/80 cursor-pointer"
             >
               No
@@ -85,7 +96,7 @@ export function DeleteVideosComponent({
             <button
               type="button"
               disabled={!canConfirm}
-              onClick={onConfirm}
+              onClick={handleConfirm}
               className="inline-flex h-10 items-center rounded-lg border bg-red-900/70 px-4 text-sm text-foreground hover:bg-red-900/80 disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
             >
               Yes

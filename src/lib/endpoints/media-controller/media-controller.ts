@@ -64,7 +64,7 @@ export type getVideosResponseSuccess = getVideosResponse200 & {
 };
 export type getVideosResponse = getVideosResponseSuccess;
 
-export const getGetVideosUrl = (params?: GetVideosParams) => {
+export const getGetVideosUrl = (params: GetVideosParams) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -81,7 +81,7 @@ export const getGetVideosUrl = (params?: GetVideosParams) => {
 };
 
 export const getVideos = async (
-  params?: GetVideosParams,
+  params: GetVideosParams,
   options?: RequestInit,
 ): Promise<getVideosResponse> => {
   return client<getVideosResponse>(getGetVideosUrl(params), {
