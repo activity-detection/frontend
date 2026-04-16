@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Details } from "@/models";
@@ -9,6 +9,7 @@ import {
   getVideoInfo,
   type getVideoMediaResponse,
 } from "@/lib/endpoints/media-controller/media-controller";
+import { VideoEventsTimeline } from "@/components/video-events-timeline";
 
 interface VideoPlayerProps {
   videoId: string | null;
@@ -39,6 +40,10 @@ export function VideoPlayer({
   const [isLoading, setIsLoading] = useState(false);
   const [videoDetails, setVideoDetails] = useState<Details | null>(null);
   const [detailsLoading, setDetailsLoading] = useState(false);
+  const [durationSeconds, setDurationSeconds] = useState<number | null>(null);
+  const [currentTimeSeconds, setCurrentTimeSeconds] = useState(0);
+
+  const videoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
     if (!videoId) {
@@ -131,6 +136,40 @@ export function VideoPlayer({
     };
   }, [videoId]);
 
+  // Reset playback telemetry whenever a new video is loaded so the timeline
+  // does not show stale duration / playhead data between selections.
+  useEffect(() => {
+    setDurationSeconds(null);
+    setCurrentTimeSeconds(0);
+  }, [videoId]);
+
+  const handleLoadedMetadata = useCallback(() => {
+    const duration = videoRef.current?.duration;
+    if (duration && Number.isFinite(duration) && duration > 0) {
+      setDurationSeconds(duration);
+    }
+  }, []);
+
+  const handleTimeUpdate = useCallback(() => {
+    const time = videoRef.current?.currentTime ?? 0;
+    setCurrentTimeSeconds(time);
+  }, []);
+
+  const handleSeekToEvent = useCallback((seconds: number) => {
+    const video = videoRef.current;
+    if (!video) {
+      return;
+    }
+    video.currentTime = seconds;
+    setCurrentTimeSeconds(seconds);
+    // Auto-play on jump so clicking a marker actually plays that moment,
+    // matching typical video-chapter UX. Swallow the promise — browsers may
+    // reject autoplay without user gesture, but the click itself is one.
+    void video.play().catch(() => {
+      /* user gesture / autoplay policy — safe to ignore */
+    });
+  }, []);
+
   if (!videoId) return null;
 
   return (
@@ -172,14 +211,26 @@ export function VideoPlayer({
             <div className="text-muted-foreground">Loading video...</div>
           ) : videoUrl ? (
             <video
+              ref={videoRef}
               controls
               className="w-full h-full object-contain"
               src={videoUrl}
+              onLoadedMetadata={handleLoadedMetadata}
+              onDurationChange={handleLoadedMetadata}
+              onTimeUpdate={handleTimeUpdate}
+              onSeeked={handleTimeUpdate}
             />
           ) : (
             <div className="text-muted-foreground">Failed to load video</div>
           )}
         </div>
+
+        <VideoEventsTimeline
+          events={videoDetails?.events}
+          durationSeconds={durationSeconds}
+          currentTimeSeconds={currentTimeSeconds}
+          onSeek={handleSeekToEvent}
+        />
 
         <div className="space-y-2 text-sm">
           <h3 className="font-semibold text-foreground">Description</h3>
