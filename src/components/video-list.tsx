@@ -73,29 +73,63 @@ export function VideoList() {
   );
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const selectAllRef = useRef<HTMLInputElement | null>(null);
+  const hasInvalidDateRange = Boolean(
+    startDate && endDate && startDate > endDate,
+  );
+
+  const getDateFilters = () => ({
+    from: startDate ? `${startDate}T00:00:00` : undefined,
+    to: endDate ? `${endDate}T23:59:59` : undefined,
+  });
 
   const handleSort = (key: SortConfig["key"]) => {
     const newDirection =
       sortConfig.key === key && sortConfig.direction === "asc" ? "desc" : "asc";
     setSortConfig({ key, direction: newDirection });
-    void loadVideosPage(0, [`${key},${newDirection}`]);
+    void loadVideosPage(0, [`${key},${newDirection}`], getDateFilters());
   };
 
   const handlePrevious = () => {
     if (pageNumber > 0) {
-      void loadVideosPage(pageNumber - 1, [
-        `${sortConfig.key},${sortConfig.direction}`,
-      ]);
+      void loadVideosPage(
+        pageNumber - 1,
+        [`${sortConfig.key},${sortConfig.direction}`],
+        getDateFilters(),
+      );
     }
   };
 
   const handleNext = () => {
     if (pageNumber + 1 < totalPages) {
-      void loadVideosPage(pageNumber + 1, [
-        `${sortConfig.key},${sortConfig.direction}`,
-      ]);
+      void loadVideosPage(
+        pageNumber + 1,
+        [`${sortConfig.key},${sortConfig.direction}`],
+        getDateFilters(),
+      );
     }
+  };
+
+  const applyDateFilter = () => {
+    if (hasInvalidDateRange) {
+      return;
+    }
+    void loadVideosPage(
+      0,
+      [`${sortConfig.key},${sortConfig.direction}`],
+      getDateFilters(),
+    );
+  };
+
+  const clearDateFilter = () => {
+    setStartDate("");
+    setEndDate("");
+    void loadVideosPage(0, [`${sortConfig.key},${sortConfig.direction}`], {
+      from: undefined,
+      to: undefined,
+    });
   };
 
   const renderSortIcon = (key: SortConfig["key"]) => {
@@ -194,7 +228,10 @@ export function VideoList() {
   };
 
   const handleConfirmDelete = async () => {
-    await deleteVideos(selectedVideoIds);
+    await deleteVideos(selectedVideoIds, {
+      sort: [`${sortConfig.key},${sortConfig.direction}`],
+      filters: getDateFilters(),
+    });
     setSelectedVideoIds(new Set());
     setIsDeleteModalOpen(false);
     setSelectedVideoId(null);
@@ -245,54 +282,45 @@ export function VideoList() {
         <CardContent className="p-8 pt-0">
           <div className="mb-4 flex items-center justify-between gap-4">
             <div className="flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                className="inline-flex h-10 items-center gap-2 rounded-lg border border-border bg-muted/70 hover:bg-muted px-4 text-sm text-muted-foreground cursor-not-allowed"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="opacity-80"
-                >
-                  <path d="M8 2v4" />
-                  <path d="M16 2v4" />
-                  <rect width="18" height="18" x="3" y="4" rx="2" />
-                  <path d="M3 10h18" />
-                </svg>
-                <span className="md:block hidden">Select start date</span>
-              </button>
+              <label className="inline-flex h-10 items-center gap-2 rounded-lg border border-border bg-muted/70 px-3 text-sm text-muted-foreground">
+                <span className="hidden md:inline">From</span>
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(event) => setStartDate(event.target.value)}
+                  className="bg-transparent text-foreground outline-none"
+                  aria-label="Start date"
+                />
+              </label>
 
               <span className="px-1 text-sm text-muted-foreground">to</span>
 
+              <label className="inline-flex h-10 items-center gap-2 rounded-lg border border-border bg-muted/70 px-3 text-sm text-muted-foreground">
+                <span className="hidden md:inline">To</span>
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(event) => setEndDate(event.target.value)}
+                  className="bg-transparent text-foreground outline-none"
+                  aria-label="End date"
+                />
+              </label>
+
               <button
                 type="button"
-                className="inline-flex h-10 items-center gap-2 rounded-lg border border-border bg-muted/70 hover:bg-muted px-4 text-sm text-muted-foreground cursor-not-allowed"
+                onClick={applyDateFilter}
+                disabled={hasInvalidDateRange}
+                className="inline-flex h-10 items-center rounded-lg border border-border bg-muted px-4 text-sm text-muted-foreground gap-1 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="opacity-80"
-                >
-                  <path d="M8 2v4" />
-                  <path d="M16 2v4" />
-                  <rect width="18" height="18" x="3" y="4" rx="2" />
-                  <path d="M3 10h18" />
-                </svg>
-                <span className="md:block hidden">Select end date</span>
+                Apply
+              </button>
+
+              <button
+                type="button"
+                onClick={clearDateFilter}
+                className="inline-flex h-10 items-center rounded-lg border border-border bg-muted px-4 text-sm text-muted-foreground gap-1 cursor-pointer"
+              >
+                Clear
               </button>
             </div>
 
@@ -389,7 +417,9 @@ export function VideoList() {
                       </span>
                     </label>
                   </TableHead>
-                  <TableHead className="p-4 font-mono text-xs font-bold">Video ID</TableHead>
+                  <TableHead className="p-4 font-mono text-xs font-bold">
+                    Video ID
+                  </TableHead>
                   <TableHead className="p-4 font-bold">Description</TableHead>
                   <TableHead
                     onClick={() => handleSort("uploadDate")}
@@ -532,6 +562,11 @@ export function VideoList() {
             <div className="text-sm text-muted-foreground">
               Showing {videos.length} of {totalElements} videos
             </div>
+            {hasInvalidDateRange ? (
+              <div className="text-sm text-red-500">
+                Start date must be before or equal to end date.
+              </div>
+            ) : null}
 
             <nav className="flex items-center gap-x-1" aria-label="Pagination">
               <button

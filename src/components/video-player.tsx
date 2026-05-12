@@ -16,7 +16,10 @@ import {
   getVideoSequences,
   type getVideoMediaResponse,
 } from "@/lib/endpoints/media-controller/media-controller";
-import { formatSecondsAsClock, parseIsoDurationToSeconds } from "@/lib/duration";
+import {
+  formatSecondsAsClock,
+  parseIsoDurationToSeconds,
+} from "@/lib/duration";
 
 interface VideoPlayerProps {
   videoId: string | null;
@@ -158,7 +161,9 @@ async function readVideoDuration(url: string): Promise<number> {
   return duration;
 }
 
-async function resolveVideoSequence(videoId: string): Promise<VideoSequence | null> {
+async function resolveVideoSequence(
+  videoId: string,
+): Promise<VideoSequence | null> {
   const pageSize = 50;
   let currentPage = 0;
   let totalPages = 1;
@@ -297,7 +302,8 @@ export function VideoPlayer({
               Range: "bytes=0-",
             },
           });
-          const fallbackResponseData = fallbackResponse as getVideoMediaResponse;
+          const fallbackResponseData =
+            fallbackResponse as getVideoMediaResponse;
           const fallbackBlob = fallbackResponseData.data;
           const fallbackMimeType =
             normalizeMimeType(
@@ -473,7 +479,9 @@ export function VideoPlayer({
 
     return videoDetails.detections
       .map((detection, index) => {
-        const fromSeconds = parseIsoDurationToSeconds(detection.timestamp?.from);
+        const fromSeconds = parseIsoDurationToSeconds(
+          detection.timestamp?.from,
+        );
         const toSeconds = parseIsoDurationToSeconds(detection.timestamp?.to);
         if (
           fromSeconds === null ||
@@ -544,7 +552,11 @@ export function VideoPlayer({
       });
 
     const duration = player.duration();
-    if (typeof duration !== "number" || !Number.isFinite(duration) || duration <= 0) {
+    if (
+      typeof duration !== "number" ||
+      !Number.isFinite(duration) ||
+      duration <= 0
+    ) {
       return;
     }
 
@@ -702,7 +714,10 @@ export function VideoPlayer({
         return;
       }
 
-      const clamped = Math.max(0, Math.min(globalSeconds, totalDurationSeconds));
+      const clamped = Math.max(
+        0,
+        Math.min(globalSeconds, totalDurationSeconds),
+      );
 
       let targetIndex = partAssets.length - 1;
       for (let index = 0; index < partAssets.length; index += 1) {
@@ -742,7 +757,8 @@ export function VideoPlayer({
   const currentPartName = currentAsset?.part.name || videoName || "Video";
   const currentPartDescription =
     currentAsset?.part.description ?? videoDescription ?? "No description";
-  const currentPartUploadDate = currentAsset?.part.upload_date || uploadDate || "—";
+  const currentPartUploadDate =
+    currentAsset?.part.upload_date || uploadDate || "—";
   const hasSequence = partAssets.length > 1;
 
   return (
@@ -802,7 +818,8 @@ export function VideoPlayer({
               <h3 className="font-semibold text-foreground">Video chapters</h3>
               {hasSequence ? (
                 <span className="text-xs text-muted-foreground">
-                  {partAssets.length} parts · {formatSecondsAsClock(totalDurationSeconds)}
+                  {partAssets.length} parts ·{" "}
+                  {formatSecondsAsClock(totalDurationSeconds)}
                 </span>
               ) : null}
             </div>
@@ -820,7 +837,9 @@ export function VideoPlayer({
                   )}
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <span className="truncate text-foreground">{chapter.label}</span>
+                    <span className="truncate text-foreground">
+                      {chapter.label}
+                    </span>
                     <span className="shrink-0 font-mono text-xs text-muted-foreground">
                       {formatSecondsAsClock(chapter.startSeconds)}
                     </span>
@@ -830,7 +849,8 @@ export function VideoPlayer({
             </div>
             {hasSequence ? (
               <div className="text-xs text-muted-foreground">
-                Global playhead: {formatSecondsAsClock(globalCurrentTimeSeconds)}
+                Global playhead:{" "}
+                {formatSecondsAsClock(globalCurrentTimeSeconds)}
               </div>
             ) : null}
           </div>
@@ -852,10 +872,15 @@ export function VideoPlayer({
                   key={`event-${event.label}-${event.timestamp?.from ?? ""}-${index}`}
                   className="rounded-md border border-border/50 bg-muted/30 p-3"
                 >
-                  <div className="text-xs text-foreground">Label: {event.label}</div>
+                  <div className="text-xs text-foreground">
+                    Label: {event.label}
+                  </div>
                   <div className="text-xs text-muted-foreground">
                     Timestamp:{" "}
-                    {formatTimestampRange(event.timestamp?.from, event.timestamp?.to)}
+                    {formatTimestampRange(
+                      event.timestamp?.from,
+                      event.timestamp?.to,
+                    )}
                   </div>
                 </div>
               ))}
@@ -876,7 +901,10 @@ export function VideoPlayer({
                 >
                   <div className="text-xs text-muted-foreground">
                     Timestamp:{" "}
-                    {formatTimestampRange(detection.timestamp?.from, detection.timestamp?.to)}
+                    {formatTimestampRange(
+                      detection.timestamp?.from,
+                      detection.timestamp?.to,
+                    )}
                   </div>
                   <div className="mt-1 text-xs text-foreground wrap-break-word">
                     Objects:{" "}

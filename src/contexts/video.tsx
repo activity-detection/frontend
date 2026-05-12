@@ -49,8 +49,15 @@ type VideoContextValue = {
   totalPages: number;
   totalElements: number;
   checkApiHealth: () => Promise<void>;
-  loadVideosPage: (page: number, sort?: string[]) => Promise<void>;
-  deleteVideos: (set: Set<string>) => Promise<void>;
+  loadVideosPage: (
+    page: number,
+    sort?: string[],
+    filters?: { from?: string; to?: string },
+  ) => Promise<void>;
+  deleteVideos: (
+    set: Set<string>,
+    options?: { sort?: string[]; filters?: { from?: string; to?: string } },
+  ) => Promise<void>;
 };
 
 const VideoContext = createContext<VideoContextValue | undefined>(undefined);
@@ -105,7 +112,11 @@ export function VideoProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const loadVideosPage = useCallback(
-    async (page: number, sort: string[] = ["uploadDate,desc"]) => {
+    async (
+      page: number,
+      sort: string[] = ["uploadDate,desc"],
+      filters?: { from?: string; to?: string },
+    ) => {
       try {
         setVideosLoading(true);
         setError(null);
@@ -115,6 +126,8 @@ export function VideoProvider({ children }: { children: ReactNode }) {
             page,
             size: pageSize,
             sort,
+            from: filters?.from,
+            to: filters?.to,
           }),
           new Promise((resolve) => setTimeout(resolve, 100)),
         ]);
@@ -133,12 +146,14 @@ export function VideoProvider({ children }: { children: ReactNode }) {
           (data.content ?? []).map((sequence) => {
             const firstPart = sequence.parts[0];
             const firstPartWithDescription = sequence.parts.find(
-              (part) => typeof part.description === "string" && part.description.trim(),
+              (part) =>
+                typeof part.description === "string" && part.description.trim(),
             );
 
             return {
               id: sequence.origin_id,
-              name: firstPart?.name || `Video ${sequence.origin_id.slice(0, 8)}`,
+              name:
+                firstPart?.name || `Video ${sequence.origin_id.slice(0, 8)}`,
               description: firstPartWithDescription?.description ?? undefined,
               upload_date: sequence.sequence_upload_date,
             };
@@ -158,7 +173,10 @@ export function VideoProvider({ children }: { children: ReactNode }) {
   );
 
   const deleteVideos = useCallback(
-    async (set: Set<string>) => {
+    async (
+      set: Set<string>,
+      options?: { sort?: string[]; filters?: { from?: string; to?: string } },
+    ) => {
       const ids = Array.from(set);
       if (ids.length === 0) {
         return;
@@ -172,9 +190,10 @@ export function VideoProvider({ children }: { children: ReactNode }) {
           ids.map(async (id) => {
             try {
               const sequenceResponse = await getVideoSequences1(id);
-              const sequence = unwrapPayload<VideoSequencePage["content"][number]>(
-                sequenceResponse,
-              );
+              const sequence =
+                unwrapPayload<VideoSequencePage["content"][number]>(
+                  sequenceResponse,
+                );
               return Array.isArray(sequence.parts)
                 ? sequence.parts.map((part) => part.id)
                 : [id];
@@ -186,7 +205,7 @@ export function VideoProvider({ children }: { children: ReactNode }) {
         const uniquePartIds = Array.from(new Set(resolvedPartIds.flat()));
 
         await Promise.all(uniquePartIds.map((partId) => deleteVideo(partId)));
-        await loadVideosPage(pageNumber);
+        await loadVideosPage(pageNumber, options?.sort, options?.filters);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Error deleting videos");
       } finally {

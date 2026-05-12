@@ -173,7 +173,9 @@
   border: 1px solid rgb(10 10 10 / 0.9);
   border-radius: 9999px;
   background: #e64553;
-  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.35), 0 0 10px rgb(230 69 83 / 0.8);
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.35),
+    0 0 10px rgb(230 69 83 / 0.8);
   cursor: pointer;
   z-index: 30;
 }
