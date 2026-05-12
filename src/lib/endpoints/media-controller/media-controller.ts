@@ -5,9 +5,12 @@
  * OpenAPI spec version: v0
  */
 import type {
+  GetVideoSequencesParams,
   GetVideosParams,
   UploadVideoBody,
   UploadVideoParams,
+  VideoSequence,
+  VideoSequencePage,
 } from "../../../models";
 
 import { client } from "../../client";
@@ -160,4 +163,68 @@ export const getVideoInfo = async (
     ...options,
     method: "GET",
   });
+};
+
+export type getVideoSequencesResponse200 = {
+  data: VideoSequencePage;
+  status: 200;
+};
+
+export type getVideoSequencesResponseSuccess = getVideoSequencesResponse200 & {
+  headers: Headers;
+};
+export type getVideoSequencesResponse = getVideoSequencesResponseSuccess;
+
+export const getGetVideoSequencesUrl = (params?: GetVideoSequencesParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/videos/sequences?${stringifiedParams}`
+    : `/videos/sequences`;
+};
+
+export const getVideoSequences = async (
+  params?: GetVideoSequencesParams,
+  options?: RequestInit,
+): Promise<getVideoSequencesResponse> => {
+  return client<getVideoSequencesResponse>(getGetVideoSequencesUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export type getVideoSequences1Response200 = {
+  data: VideoSequence;
+  status: 200;
+};
+
+export type getVideoSequences1ResponseSuccess =
+  getVideoSequences1Response200 & {
+    headers: Headers;
+  };
+export type getVideoSequences1Response = getVideoSequences1ResponseSuccess;
+
+export const getGetVideoSequences1Url = (originId: string) => {
+  return `/videos/sequences/${originId}`;
+};
+
+export const getVideoSequences1 = async (
+  originId: string,
+  options?: RequestInit,
+): Promise<getVideoSequences1Response> => {
+  return client<getVideoSequences1Response>(
+    getGetVideoSequences1Url(originId),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
 };

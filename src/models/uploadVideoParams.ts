@@ -9,4 +9,5 @@ export type UploadVideoParams = {
   "video-name": string;
   description?: string;
   "relative-path": string;
+  "continuation-of"?: string;
 };

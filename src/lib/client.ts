@@ -12,8 +12,8 @@ export const client = async <T>(
     headers.set("Content-Type", "application/json");
   }
 
-  const isVideoRequest = url.includes("/videos/") && !url.includes("/info");
-  if (method === "GET" && isVideoRequest && !headers.has("Range")) {
+  const isMediaFileEndpoint = /^\/videos\/[^/?#]+$/.test(url);
+  if (method === "GET" && isMediaFileEndpoint && !headers.has("Range")) {
     headers.set("Range", "bytes=0-");
   }
 

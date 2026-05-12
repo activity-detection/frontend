@@ -12,11 +12,21 @@ type ParameterObject = {
 };
 
 type OpenApiLike = Record<string, unknown> & {
-  paths?: Record<string, Record<string, { parameters?: unknown[] }>>;
+  paths?: Record<string, Record<string, OperationObject>>;
   components?: {
     parameters?: Record<string, unknown>;
     schemas?: Record<string, unknown>;
   };
+};
+
+type OperationObject = {
+  parameters?: unknown[];
+  responses?: Record<
+    string,
+    {
+      content?: Record<string, { schema?: Record<string, unknown> }>;
+    }
+  >;
 };
 
 function resolveRef<T>(ref: string, spec: OpenApiLike): T | undefined {
@@ -83,15 +93,12 @@ function getPropertySchema(
   return fallback;
 }
 
-export default defineTransformer((openApi) => {
-  const spec = structuredClone(openApi) as OpenApiLike;
-  const getVideos = spec.paths?.["/videos"]?.get;
-
-  if (!getVideos?.parameters?.length) {
-    return spec as typeof openApi;
+function flattenPageableQuery(operation: OperationObject, spec: OpenApiLike) {
+  if (!operation.parameters?.length) {
+    return;
   }
 
-  const resolvedParameters = getVideos.parameters
+  const resolvedParameters = operation.parameters
     .map((parameter) => ({
       original: parameter,
       resolved: resolveParameter(parameter, spec),
@@ -104,7 +111,7 @@ export default defineTransformer((openApi) => {
   );
 
   if (!pageableEntry?.resolved) {
-    return spec as typeof openApi;
+    return;
   }
 
   const pageableSchema = resolveSchema(pageableEntry.resolved.schema, spec);
@@ -122,11 +129,11 @@ export default defineTransformer((openApi) => {
     items: { type: "string" },
   });
 
-  getVideos.parameters = getVideos.parameters.filter(
+  operation.parameters = operation.parameters.filter(
     (parameter) => parameter !== pageableEntry.original,
   );
 
-  getVideos.parameters.unshift(
+  operation.parameters.unshift(
     {
       in: "query",
       name: "sort",
@@ -146,6 +153,134 @@ export default defineTransformer((openApi) => {
       schema: pageSchema,
     },
   );
+}
+
+function patchSequenceSchemas(spec: OpenApiLike) {
+  if (!spec.components) {
+    spec.components = {};
+  }
+
+  if (!spec.components.schemas) {
+    spec.components.schemas = {};
+  }
+
+  spec.components.schemas.VideoSequencePart = {
+    type: "object",
+    properties: {
+      id: {
+        type: "string",
+        format: "uuid",
+      },
+      name: {
+        type: "string",
+      },
+      description: {
+        type: "string",
+        nullable: true,
+      },
+      upload_date: {
+        type: "string",
+        format: "date-time",
+      },
+      continuation_of: {
+        type: "string",
+        format: "uuid",
+        nullable: true,
+      },
+    },
+    required: ["id", "name", "upload_date"],
+  };
+
+  spec.components.schemas.VideoSequence = {
+    type: "object",
+    properties: {
+      origin_id: {
+        type: "string",
+        format: "uuid",
+      },
+      sequence_upload_date: {
+        type: "string",
+        format: "date-time",
+      },
+      parts: {
+        type: "array",
+        items: {
+          $ref: "#/components/schemas/VideoSequencePart",
+        },
+      },
+    },
+    required: ["origin_id", "sequence_upload_date", "parts"],
+  };
+
+  spec.components.schemas.VideoSequencePage = {
+    type: "object",
+    properties: {
+      content: {
+        type: "array",
+        items: {
+          $ref: "#/components/schemas/VideoSequence",
+        },
+      },
+      page: {
+        type: "object",
+        properties: {
+          size: {
+            type: "integer",
+          },
+          number: {
+            type: "integer",
+          },
+          totalElements: {
+            type: "integer",
+          },
+          totalPages: {
+            type: "integer",
+          },
+        },
+        required: ["size", "number", "totalElements", "totalPages"],
+      },
+    },
+    required: ["content", "page"],
+  };
+
+  const sequencesGet = spec.paths?.["/videos/sequences"]?.get;
+  if (sequencesGet?.responses?.["200"]) {
+    sequencesGet.responses["200"] = {
+      ...sequencesGet.responses["200"],
+      content: {
+        "application/json": {
+          schema: { $ref: "#/components/schemas/VideoSequencePage" },
+        },
+      },
+    };
+  }
+
+  const sequenceGet = spec.paths?.["/videos/sequences/{originId}"]?.get;
+  if (sequenceGet?.responses?.["200"]) {
+    sequenceGet.responses["200"] = {
+      ...sequenceGet.responses["200"],
+      content: {
+        "application/json": {
+          schema: { $ref: "#/components/schemas/VideoSequence" },
+        },
+      },
+    };
+  }
+}
+
+export default defineTransformer((openApi) => {
+  const spec = structuredClone(openApi) as OpenApiLike;
+  const getVideos = spec.paths?.["/videos"]?.get;
+  if (getVideos) {
+    flattenPageableQuery(getVideos, spec);
+  }
+
+  const getVideoSequences = spec.paths?.["/videos/sequences"]?.get;
+  if (getVideoSequences) {
+    flattenPageableQuery(getVideoSequences, spec);
+  }
+
+  patchSequenceSchemas(spec);
 
   return spec as typeof openApi;
 });

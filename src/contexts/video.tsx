@@ -10,8 +10,10 @@ import {
 } from "react";
 import {
   deleteVideo,
-  getVideos,
+  getVideoSequences,
+  getVideoSequences1,
 } from "@/lib/endpoints/media-controller/media-controller";
+import type { VideoSequencePage } from "@/models";
 
 type VideoItem = {
   id: string;
@@ -21,14 +23,20 @@ type VideoItem = {
 };
 
 type VideosPage = {
-  content: VideoItem[];
-  page: {
-    size: number;
-    number: number;
-    totalElements: number;
-    totalPages: number;
-  };
+  content: VideoSequencePage["content"];
+  page: VideoSequencePage["page"];
 };
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function unwrapPayload<T>(value: unknown): T {
+  if (isRecord(value) && "data" in value) {
+    return value.data as T;
+  }
+  return value as T;
+}
 
 type VideoContextValue = {
   apiOk: boolean | null;
@@ -103,7 +111,7 @@ export function VideoProvider({ children }: { children: ReactNode }) {
         setError(null);
 
         const [response] = await Promise.all([
-          getVideos({
+          getVideoSequences({
             page,
             size: pageSize,
             sort,
@@ -115,8 +123,27 @@ export function VideoProvider({ children }: { children: ReactNode }) {
           throw new Error("Invalid response from API");
         }
 
-        const data = response as unknown as VideosPage;
-        setVideos(data.content ?? []);
+        const data = unwrapPayload<VideosPage>(response);
+
+        if (!Array.isArray(data.content) || typeof data.page !== "object") {
+          throw new Error("Invalid response from API");
+        }
+
+        setVideos(
+          (data.content ?? []).map((sequence) => {
+            const firstPart = sequence.parts[0];
+            const firstPartWithDescription = sequence.parts.find(
+              (part) => typeof part.description === "string" && part.description.trim(),
+            );
+
+            return {
+              id: sequence.origin_id,
+              name: firstPart?.name || `Video ${sequence.origin_id.slice(0, 8)}`,
+              description: firstPartWithDescription?.description ?? undefined,
+              upload_date: sequence.sequence_upload_date,
+            };
+          }),
+        );
         setPageNumber(data.page?.number ?? page);
         setTotalPages(data.page?.totalPages ?? 0);
         setTotalElements(data.page?.totalElements ?? 0);
@@ -141,7 +168,24 @@ export function VideoProvider({ children }: { children: ReactNode }) {
         setVideosLoading(true);
         setError(null);
 
-        await Promise.all(ids.map((id) => deleteVideo(id)));
+        const resolvedPartIds = await Promise.all(
+          ids.map(async (id) => {
+            try {
+              const sequenceResponse = await getVideoSequences1(id);
+              const sequence = unwrapPayload<VideoSequencePage["content"][number]>(
+                sequenceResponse,
+              );
+              return Array.isArray(sequence.parts)
+                ? sequence.parts.map((part) => part.id)
+                : [id];
+            } catch {
+              return [id];
+            }
+          }),
+        );
+        const uniquePartIds = Array.from(new Set(resolvedPartIds.flat()));
+
+        await Promise.all(uniquePartIds.map((partId) => deleteVideo(partId)));
         await loadVideosPage(pageNumber);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Error deleting videos");

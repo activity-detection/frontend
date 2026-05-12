@@ -34,7 +34,6 @@ type SortConfig = {
 };
 
 type SelectedVideoDetails = {
-  id: string;
   name: string;
   description?: string;
   uploadDate?: string;
@@ -212,7 +211,6 @@ export function VideoList() {
     }
     setSelectedVideoId(video.id);
     setSelectedVideoDetails({
-      id: video.id,
       name: video.name,
       description: video.description,
       uploadDate: formatUploadDate(video.upload_date),
@@ -391,9 +389,7 @@ export function VideoList() {
                       </span>
                     </label>
                   </TableHead>
-                  <TableHead className="p-4 font-mono text-xs font-bold">
-                    ID
-                  </TableHead>
+                  <TableHead className="p-4 font-mono text-xs font-bold">Video ID</TableHead>
                   <TableHead className="p-4 font-bold">Description</TableHead>
                   <TableHead
                     onClick={() => handleSort("uploadDate")}
@@ -437,7 +433,7 @@ export function VideoList() {
                             colSpan={4}
                             className="text-center text-muted-foreground"
                           >
-                            No recordings found
+                            No videos found
                           </TableCell>
                         </TableRow>
                         {Array.from({ length: totalRows - 1 }).map(
@@ -534,7 +530,7 @@ export function VideoList() {
           {/* Pagination */}
           <div className="mt-6 flex justify-between items-center">
             <div className="text-sm text-muted-foreground">
-              Showing {videos.length} of {totalElements} recordings
+              Showing {videos.length} of {totalElements} videos
             </div>
 
             <nav className="flex items-center gap-x-1" aria-label="Pagination">

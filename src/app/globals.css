@@ -116,7 +116,84 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* VIDEO JS */
+
+.video-js {
+  width: 100%;
+  height: 100%;
+  background-color: black;
+}
+
+.video-js .vjs-tech {
+  object-fit: contain;
+}
+
+.video-js .vjs-progress-holder {
+  position: relative;
+  height: 0.5em !important;
+}
+
+.video-js .vjs-progress-holder .vjs-slider-bar,
+.video-js .vjs-progress-holder .vjs-play-progress,
+.video-js .vjs-progress-holder .vjs-load-progress,
+.video-js .vjs-progress-holder .vjs-mouse-display {
+  position: relative;
+  z-index: 10;
+}
+
+.video-js .vjs-progress-control {
+  height: 5em;
+}
+
+.video-js .vjs-play-progress::before {
+  font-size: 1.4em !important;
+  /* top: -0.4em !important; */
+}
+
+.video-js .vjs-play-progress::before:hover {
+  font-size: 1.6em !important;
+}
+
+.video-js .vjs-play-progress {
+  z-index: 31 !important;
+}
+
+.video-js .vjs-detection-marker {
+  position: absolute;
+  top: -3px;
+  transform: translateX(-50%);
+  width: 6px;
+  height: calc(100% + 6px);
+  border: 1px solid rgb(10 10 10 / 0.9);
+  border-radius: 9999px;
+  background: #e64553;
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.35), 0 0 10px rgb(230 69 83 / 0.8);
+  cursor: pointer;
+  z-index: 30;
+}
+
+.video-js .vjs-detection-marker:hover {
+  background: #e64553;
+}
+
+.video-js .vjs-detection-marker-range {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  border: 1px solid rgb(10 10 10 / 0.75);
+  border-radius: 9999px;
+  background: rgb(230 69 83 / 0.65);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.25);
+  cursor: pointer;
+  z-index: 29;
+}
+
+.video-js .vjs-detection-marker-range:hover {
+  background: rgb(230 69 83 / 0.85);
 }
