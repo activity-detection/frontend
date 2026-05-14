@@ -5,6 +5,7 @@
  * OpenAPI spec version: v0
  */
 import type {
+  Details,
   GetVideoSequencesParams,
   GetVideosParams,
   UploadVideoBody,
@@ -160,6 +161,49 @@ export const getVideoInfo = async (
   options?: RequestInit,
 ): Promise<getVideoInfoResponse> => {
   return client<getVideoInfoResponse>(getGetVideoInfoUrl(fileIdentifier), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export type getVideoSequenceConcatMediaResponse206 = {
+  data: Blob;
+  status: 206;
+};
+
+export type getVideoSequenceConcatMediaResponseSuccess =
+  getVideoSequenceConcatMediaResponse206 & {
+    headers: Headers;
+  };
+export type getVideoSequenceConcatMediaResponse =
+  getVideoSequenceConcatMediaResponseSuccess;
+
+export const getGetVideoSequenceConcatMediaUrl = (originId: string) => {
+  return `/videos/sequences/${originId}/concat`;
+};
+
+export const getVideoSequenceConcatMedia = async (
+  originId: string,
+  options?: RequestInit,
+): Promise<getVideoSequenceConcatMediaResponse> => {
+  return client<getVideoSequenceConcatMediaResponse>(
+    getGetVideoSequenceConcatMediaUrl(originId),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetVideoSequenceInfoUrl = (originId: string) => {
+  return `/videos/sequences/${originId}/info`;
+};
+
+export const getVideoSequenceInfo = async (
+  originId: string,
+  options?: RequestInit,
+): Promise<Details> => {
+  return client<Details>(getGetVideoSequenceInfoUrl(originId), {
     ...options,
     method: "GET",
   });
