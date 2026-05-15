@@ -14,8 +14,8 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { VideoPlayer } from "./video-player";
-import SettingsWindow from "./settings-window";
+import { VideoPlayer } from "@/features/detection-explorer/components/video-player";
+import SettingsWindow from "@/features/detection-rules/components/settings-window";
 
 const DeleteVideosComponent = dynamic(
   () =>

@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { VideoProvider, useVideo } from "@/contexts/video";
 import { RulesProvider } from "@/contexts/rules";
 import { LoadingScreen } from "@/components/loading-screen";
-import { VideoList } from "@/components/video-list";
+import { VideoList } from "@/features/detection-explorer/components/video-list";
 
 function PageContent() {
   const { apiLoading, checkApiHealth, loadVideosPage, apiOk } = useVideo();

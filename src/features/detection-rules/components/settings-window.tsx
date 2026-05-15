@@ -18,8 +18,8 @@ import {
   type RuleFormData,
   type TemplateFormData,
   type VectorFormData,
-} from "@/components/settings-rule-creator";
-import { SettingsDeleteConfirmation } from "@/components/settings-delete-confirmation";
+} from "@/features/detection-rules/components/settings-rule-creator";
+import { SettingsDeleteConfirmation } from "@/features/detection-rules/components/settings-delete-confirmation";
 
 function createEmptyRule(defaultElementName = ""): RuleFormData {
   return {
