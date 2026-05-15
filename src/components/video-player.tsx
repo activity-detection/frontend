@@ -16,7 +16,10 @@ import {
   getVideoSequences,
 } from "@/lib/endpoints/media-controller/media-controller";
 import { getApiBaseUrl } from "@/lib/client";
-import { formatSecondsAsClock, parseIsoDurationToSeconds } from "@/lib/duration";
+import {
+  formatSecondsAsClock,
+  parseIsoDurationToSeconds,
+} from "@/lib/duration";
 
 interface VideoPlayerProps {
   videoId: string | null;
@@ -174,9 +177,12 @@ function buildSourceCandidatesForPath(
     candidates.push({ src, mimeType });
   };
 
-  const mimeOrder = [preferredMime, "video/mp4", "video/quicktime", undefined].filter(
-    (v, i, a) => v !== undefined,
-  );
+  const mimeOrder = [
+    preferredMime,
+    "video/mp4",
+    "video/quicktime",
+    undefined,
+  ].filter((v, i, a) => v !== undefined);
 
   for (const s of srcs) {
     for (const mime of mimeOrder) {
@@ -196,9 +202,9 @@ export function VideoPlayer({
   onClose,
 }: VideoPlayerProps) {
   const [assetMeta, setAssetMeta] = useState<VideoAssetMeta | null>(null);
-  const [sourceCandidates, setSourceCandidates] = useState<VideoSourceCandidate[]>(
-    [],
-  );
+  const [sourceCandidates, setSourceCandidates] = useState<
+    VideoSourceCandidate[]
+  >([]);
   const [activeSourceIndex, setActiveSourceIndex] = useState(0);
   const [sequenceLoading, setSequenceLoading] = useState(false);
   const [sequenceError, setSequenceError] = useState<string | null>(null);
@@ -245,7 +251,9 @@ export function VideoPlayer({
         const sequenceOriginId = resolvedSequence?.origin_id ?? videoId;
 
         const sourceName = selectedPart?.name || videoName || "Video";
-        const preferredMime = normalizeMimeType(guessMimeTypeFromName(sourceName));
+        const preferredMime = normalizeMimeType(
+          guessMimeTypeFromName(sourceName),
+        );
 
         const primaryPath = hasSequenceConcat
           ? `/videos/sequences/${sequenceOriginId}/concat`
@@ -267,7 +275,8 @@ export function VideoPlayer({
 
         const meta: VideoAssetMeta = {
           name: sourceName,
-          description: descriptionSource ?? videoDescription ?? "No description",
+          description:
+            descriptionSource ?? videoDescription ?? "No description",
           uploadDate:
             (hasSequenceConcat
               ? resolvedSequence?.sequence_upload_date
@@ -655,7 +664,9 @@ export function VideoPlayer({
                       <div className="mt-1 text-xs text-foreground wrap-break-word">
                         Objects:{" "}
                         {detection.objects
-                          .map((object) => `${object.name} (${object.count ?? 1})`)
+                          .map(
+                            (object) => `${object.name} (${object.count ?? 1})`,
+                          )
                           .join(", ") || "—"}
                       </div>
                     </div>

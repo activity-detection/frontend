@@ -122,48 +122,54 @@
   }
 }
 
-/* VIDEO JS */
+/* ===  VIDEO JS SECTION === */
 
 .video-js {
   width: 100%;
   height: 100%;
-  background-color: black;
+  background-color: #000;
 }
 
 .video-js .vjs-tech {
   object-fit: contain;
 }
 
+/* Transparent play button */
+.video-js .vjs-big-play-button {
+  background: transparent !important;
+  margin: auto;
+  border: none !important;
+}
+
+/* Big play icon */
+.video-js .vjs-big-play-button .vjs-icon-placeholder {
+  font-size: 2em;
+}
+
+/* Transparent control bar */
+.video-js .vjs-control-bar {
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  padding: 0 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Fixed progress-bar height */
 .video-js .vjs-progress-holder {
-  position: relative;
   height: 0.5em !important;
 }
 
-.video-js .vjs-progress-holder .vjs-slider-bar,
-.video-js .vjs-progress-holder .vjs-play-progress,
-.video-js .vjs-progress-holder .vjs-load-progress,
-.video-js .vjs-progress-holder .vjs-mouse-display {
-  position: relative;
-  z-index: 10;
-}
-
 .video-js .vjs-progress-control {
-  height: 5em;
+  height: auto;
 }
 
+/* Progress handle size  */
 .video-js .vjs-play-progress::before {
   font-size: 1.4em !important;
-  /* top: -0.4em !important; */
 }
 
-.video-js .vjs-play-progress::before:hover {
-  font-size: 1.6em !important;
-}
-
-.video-js .vjs-play-progress {
-  z-index: 31 !important;
-}
-
+/* Activity detection marker */
 .video-js .vjs-detection-marker {
   position: absolute;
   top: -3px;
@@ -180,10 +186,7 @@
   z-index: 30;
 }
 
-.video-js .vjs-detection-marker:hover {
-  background: #e64553;
-}
-
+/* Activity detection marker */
 .video-js .vjs-detection-marker-range {
   position: absolute;
   top: 0;
