@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { DetectionVectorDTO } from "@/models";
-import { useRules, type DetectionTemplateItem } from "@/contexts/rules";
+import { useRules, type DetectionTemplateItem } from "@/features/detection-rules/context/detection-rules-context";
 import {
   SettingsRuleCreator,
   type RuleFormData,
